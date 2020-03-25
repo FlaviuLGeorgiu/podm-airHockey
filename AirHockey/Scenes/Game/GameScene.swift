@@ -14,7 +14,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Referencias a nodos de la escena
     private var paddleBottom : SKSpriteNode?
-    private var paddleTop : SKSpriteNode?
+    //private var paddleTop : SKSpriteNode?
     private var puck : SKSpriteNode?
     private var scoreboardBottom : SKLabelNode?
     private var scoreboardTop : SKLabelNode?
@@ -22,13 +22,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: Marcadores de los jugadores
     private var scoreBottom : Int = 0
-    private var scoreTop : Int = 0
+    //private var scoreTop : Int = 0
     private let maxScore = 2
 
     // MARK: Colores de los jugadores
     private let colorTop = #colorLiteral(red: 1, green: 0.2156862766, blue: 0.3725490272, alpha: 1)
     private let colorBotton = #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1)
-    
+
     // MARK: Categorias de los objetos fisicos
     private let paddleCategoryMask : UInt32 = 0b0001
     private let puckCategoryMask : UInt32 = 0b0010
@@ -49,9 +49,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         
         // TODO [B04] Obten las referencias a los nodos de la escena
-        self.paddleTop = childNode(withName: "//paddleTop") as? SKSpriteNode
+        //self.paddleTop = childNode(withName: "//paddleTop") as? SKSpriteNode
         self.paddleBottom = childNode(withName: "//paddleBottom") as? SKSpriteNode
         self.puck = childNode(withName: "//puck") as? SKSpriteNode
+        self.puck?.position = CGPoint(x: self.frame.maxX, y: 0)
         self.scoreboardTop = childNode(withName: "//score_top") as? SKLabelNode
         self.scoreboardBottom = childNode(withName: "//score_bottom") as? SKLabelNode
         
@@ -69,90 +70,83 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         
         // TODO [C11] Define los limites del escenario dejando los huecos de las porterias. Puedes utilizar dos cuerpos que definan cada uno de los laterales del escenario a partir de un path, y combinarlos en un unico cuerpo compuesto.
+        let goalWidthLado = self.frame.height / 2
+        // MARK: - Top Left
         // Definimos las referencias de las esquinas de la escena
-        let bottomRight = CGPoint(x: self.frame.maxX,
-                                  y: self.frame.minY)
-        let topRight = CGPoint(x: self.frame.maxX,
-                               y: self.frame.maxY)
-
-        // Denfinimos el ancho de la porteria
-        let goalWidth = self.frame.width / 2
-
-        // Definimos los límites de las porterías
-        let goalBottomRight = CGPoint(x: self.frame.origin.x +
-                                         (self.frame.width +
-                                          goalWidth)/2,
-                                      y: self.frame.minY)
-        let goalTopRight = CGPoint(x: self.frame.origin.x +
-                                      (self.frame.width + goalWidth)/2,
-                                   y: self.frame.maxY)
-
-        // Definimos el path lateral derecho
-        let pathRight = CGMutablePath()
-        pathRight.addLines(between: [goalTopRight, topRight,
-                                     bottomRight, goalBottomRight])
-
-        // Definimos el cuerpo derecho
-        let bodyRight = SKPhysicsBody(edgeChainFrom: pathRight)
         
+        let goalTopLeft = CGPoint(x: self.frame.minX, y: self.frame.maxY-goalWidthLado/2)
+        let topLeft = CGPoint(x: self.frame.minX,  y: self.frame.maxY)
+        let topMiddle = CGPoint(x: self.frame.maxX, y: self.frame.maxY)
+
+        // Definimos el path lateral top irquierdo
+        let pathTopLeft = CGMutablePath()
+        pathTopLeft.addLines(between: [goalTopLeft, topLeft, topMiddle])
+        
+        let drawableTopLeft = SKShapeNode(path: pathTopLeft)
+        drawableTopLeft.strokeColor = UIColor.blue
+        drawableTopLeft.lineWidth = 10
+        self.addChild(drawableTopLeft)
+
+        // Definimos el cuerpo top irquierdo
+        let bodyTopLeft = SKPhysicsBody(edgeChainFrom: pathTopLeft)
+        
+        // MARK: - Bottom Left
         // Definimos las referencias de las esquinas de la escena
-        let bottomLeft = CGPoint(x: self.frame.minX,
-                                  y: self.frame.minY)
-        let topLeft = CGPoint(x: self.frame.minX,
-                               y: self.frame.maxY)
+        
+        let goalBottomLeft = CGPoint(x: self.frame.minX, y: self.frame.minY+goalWidthLado/2)
+        let bottomLeft = CGPoint(x: self.frame.minX,  y: self.frame.minY)
+        let bottomMiddle = CGPoint(x: self.frame.maxX, y: self.frame.minY)
 
+        // Definimos el path lateral top irquierdo
+        let pathBottomLeft = CGMutablePath()
+        pathBottomLeft.addLines(between: [goalBottomLeft, bottomLeft, bottomMiddle])
+        
+        let drawableBottomLeft = SKShapeNode(path: pathBottomLeft)
+        drawableBottomLeft.strokeColor = UIColor.blue
+        drawableBottomLeft.lineWidth = 10
+        self.addChild(drawableBottomLeft)
 
-        // Definimos los límites de las porterías
-        let goalBottomLeft = CGPoint(x: self.frame.origin.x +
-                                         (self.frame.width -
-                                          goalWidth)/2,
-                                      y: self.frame.minY)
-        let goalTopLeft = CGPoint(x: self.frame.origin.x +
-                                      (self.frame.width - goalWidth)/2,
-                                   y: self.frame.maxY)
-
-        // Definimos el path lateral izquierdo
-        let pathLeft = CGMutablePath()
-        pathLeft.addLines(between: [goalTopLeft, topLeft,
-                                     bottomLeft, goalBottomLeft])
-
-        // Definimos el cuerpo izquierdo
-        let bodyLeft = SKPhysicsBody(edgeChainFrom: pathLeft)
-                
-        self.physicsBody = SKPhysicsBody.init(bodies: [bodyRight, bodyLeft])
+        // Definimos el cuerpo top irquierdo
+        let bodyBottomLeft = SKPhysicsBody(edgeChainFrom: pathBottomLeft)
+        
+        // MARK: - Físicas
+        self.physicsBody = SKPhysicsBody.init(bodies: [bodyTopLeft, bodyBottomLeft])
         //tenemos que indicar que no sea dinamico para que no le afecten fuerzas como la gravedad y se quede fijo en la escena, sino caería y no tendríamos límites
         self.physicsBody?.isDynamic = false
         
+        // MARK: - Pinta Porterías
         // TODO [C12] Dibuja las dos porterias (rectangulos) y la linea de medio campo mediante nodos SKShapeNode
-        let porteriaTop = SKShapeNode(rect: CGRect(x: -goalWidth/2, y: self.frame.maxY-goalWidth/2, width: goalWidth, height: goalWidth))
-        porteriaTop.strokeColor = UIColor.red
-        self.addChild(porteriaTop)
+        let porteriaLado = SKShapeNode(rect: CGRect(x: self.frame.minX-goalWidthLado/1.5, y: -goalWidthLado/2, width: goalWidthLado, height: goalWidthLado))
+        porteriaLado.strokeColor = UIColor.blue
+        porteriaLado.glowWidth = 4.0
+        self.addChild(porteriaLado)
         
-        let porteriaBottom = SKShapeNode(rect: CGRect(x: -goalWidth/2, y: self.frame.minY-goalWidth/2, width: goalWidth, height: goalWidth))
-        porteriaBottom.strokeColor = UIColor.blue
-        self.addChild(porteriaBottom)
+        let Circle = SKShapeNode(circleOfRadius: 150 ) // Size of Circle
+        Circle.position = CGPoint(x: self.frame.maxX, y: self.frame.midY)  //Middle of Screen
+        Circle.strokeColor = .black
+        Circle.glowWidth = 2.0
+        self.addChild(Circle)
         
-        let puntoIzquierdoLinea = CGPoint(x: -self.frame.width/2, y: 0)
-        let puntoDerechoLinea = CGPoint(x: self.frame.width/2, y: 0)
+        let puntoSuperiorLinea = CGPoint(x: self.frame.maxX, y: self.frame.maxY)
+        let puntoInferiorLinea = CGPoint(x: self.frame.maxX, y: self.frame.minY)
         let lineaPath = CGMutablePath()
-        lineaPath.addLines(between: [puntoIzquierdoLinea, puntoDerechoLinea])
+        lineaPath.addLines(between: [puntoSuperiorLinea, puntoInferiorLinea])
         let lineaMedio = SKShapeNode(path: lineaPath)
-        lineaMedio.strokeColor = UIColor.black
+        lineaMedio.strokeColor = .black
+        lineaMedio.lineWidth = 10
         self.addChild(lineaMedio)
         
+        // MARK: - Límites físicos
         // TODO [C13] Define limites fisicos para cada uno de los dos campos de juego, y asocialos a nodos de la escena.
-        let rectanguloSuperior = CGRect(x: -goalWidth, y: 0, width: self.frame.width, height: self.frame.height/2)
-        let campoSuperiorBody = SKPhysicsBody(edgeLoopFrom: rectanguloSuperior)
-        porteriaTop.physicsBody = campoSuperiorBody
         
-        let rectanguloInferior = CGRect(x: -goalWidth, y: self.frame.minY, width: self.frame.width, height: self.frame.height/2)
+        let rectanguloInferior = CGRect(x: self.frame.minX, y: self.frame.maxY, width: self.frame.width, height: self.frame.height)
         let campoInferiorBody = SKPhysicsBody(edgeLoopFrom: rectanguloInferior)
-        porteriaBottom.physicsBody = campoInferiorBody
+        porteriaLado.physicsBody = campoInferiorBody
         
+        // MARK: - Asignar
         // TODO [C14] Asigna los cuerpos fisicos de limites de la escena y de cada campo su correspondiente categoria (categoryBitMask). En caso de cuerpos compuestos, solo es necesaria asociarla al cuerpo "padre"
         self.physicsBody?.categoryBitMask = self.limitsCategoryMask
-        porteriaTop.physicsBody?.categoryBitMask = self.midfieldCategoryMask
-        porteriaBottom.physicsBody?.categoryBitMask = self.midfieldCategoryMask
+        porteriaLado.physicsBody?.categoryBitMask = self.midfieldCategoryMask
         
     }
 
@@ -177,7 +171,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 spawnPos: spawnPos)
             }
             
-            if ((puck.position.y) < self.frame.minY){
+            /*if ((puck.position.y) < self.frame.minY){
             //  - Incrementa la puntuacion del jugador correspondiente
                 self.scoreTop = self.scoreTop + 1
 
@@ -190,7 +184,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 goal(score: self.scoreTop,marcador: self.scoreboardTop!,
                 textoWin: "RED WINS!",colorTexto: self.colorTop,
                 spawnPos: spawnPos)
-            }
+            }*/
         }
         
         
@@ -198,7 +192,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     func updateScore() {
         // TODO [B05] Poner como texto de las etiquetas scoreboardTop y scoreboardBottom los valores scoreTop y scoreBottom respectivamente
-        self.scoreboardTop?.text = String(scoreTop)
+        //self.scoreboardTop?.text = String(scoreTop)
         self.scoreboardBottom?.text = String(scoreBottom)
     }
     
@@ -308,7 +302,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //  - Comprueba si hay algun nodo en dichas coordenadas
         let nodoTocado = self.atPoint(position)
         //  - Si hay un nodo, y es paddleTop o paddleBottom, asocia a dicho nodo mediante el diccionario self.activeTouches.
-        if(nodoTocado == paddleTop || nodoTocado == paddleBottom){
+        if(nodoTocado == paddleBottom){ //|| nodoTocado == paddleTop){
             //self.activeTouches[t] = nodoTocado
             activeTouches[t] = createDragNode(linkedTo: nodoTocado)
         }
