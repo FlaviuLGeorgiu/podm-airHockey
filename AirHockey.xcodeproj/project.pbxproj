@@ -372,13 +372,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.0.20200122;
-				DEVELOPMENT_TEAM = XU23KUT3NV;
+				DEVELOPMENT_TEAM = 8L55XTVW67;
 				INFOPLIST_FILE = AirHockey/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = es.ua.mastermoviles.AirHockey;
+				PRODUCT_BUNDLE_IDENTIFIER = com.flaviu.AirHockey;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -391,13 +391,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.0.20200122;
-				DEVELOPMENT_TEAM = XU23KUT3NV;
+				DEVELOPMENT_TEAM = 8L55XTVW67;
 				INFOPLIST_FILE = AirHockey/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = es.ua.mastermoviles.AirHockey;
+				PRODUCT_BUNDLE_IDENTIFIER = com.flaviu.AirHockey;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
