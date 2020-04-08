@@ -8,9 +8,14 @@
 
 import SpriteKit
 import GameplayKit
+import MultipeerConnectivity
 
 // TODO [D04] Implementa el protocolo `SKPhysicsContactDelegate`
 class GameScene: SKScene, SKPhysicsContactDelegate {
+    
+    // MARK: - Session
+    var session : MCSession? = nil
+    
     
     // MARK: - Referencias a nodos de la escena
     private var paddleBottom : SKSpriteNode?
@@ -47,6 +52,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Inicializacion de la escena
     
     override func didMove(to view: SKView) {
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        self.session = appDelegate.gameSession
         
         // TODO [B04] Obten las referencias a los nodos de la escena
         //self.paddleTop = childNode(withName: "//paddleTop") as? SKSpriteNode

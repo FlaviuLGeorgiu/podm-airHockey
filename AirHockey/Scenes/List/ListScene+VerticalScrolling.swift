@@ -34,7 +34,7 @@ extension ListScene {
         let page3ScrollView = SKSpriteNode(color: .clear, size: scrollView.frame.size)
         page3ScrollView.position = CGPoint(x: frame.midX, y: frame.midY - (scrollView.frame.height * 2))
         moveableNode.addChild(page3ScrollView)
-        
+       /*
         // Test sprites page 1
         sprite1Page1.position = CGPoint(x: 0, y: 0)
         page1ScrollView.addChild(sprite1Page1)
@@ -72,5 +72,6 @@ extension ListScene {
         let sprite2Page3 = SKSpriteNode(color: .green, size: testSpriteSize)
         sprite2Page3.position = CGPoint(x: sprite1Page3.position.x, y: sprite1Page3.position.y - (sprite2Page3.size.height * 1.5))
         sprite1Page3.addChild(sprite2Page3)*/
+ */
     }
 }

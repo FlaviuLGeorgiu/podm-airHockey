@@ -7,8 +7,15 @@
 //
 
 import SpriteKit
+import MultipeerConnectivity
 
 class ListScene: SKScene {
+    
+    // MARK: - MultipeerConnect
+    let connectService = MultipeerConnectService()
+    var listaUsuarios : [String] = []
+    var listaPeersIDs : [MCPeerID] = []
+
     
     // MARK: - Properties
     
@@ -40,14 +47,28 @@ class ListScene: SKScene {
     
     deinit {
         print("Deinit game scene")
+        
     }
     
     // MARK: - View Life Cycle
     
     override func didMove(to view: SKView) {
         /* Setup your scene here */
+        self.listaUsuarios = [String]()
+        self.connectService.delegate=self
+        
         addChild(moveableNode)
         prepareVerticalScrolling()
+        
+      /*  AppAlert(title: "Se quiere conectar un usuario", message: "PODM", preferredStyle: .alert)
+        .addAction(title: "NO", style: .cancel) { _ in
+            // action
+        }
+        .addAction(title: "SI", style: .default) { _ in
+             // action
+        }
+        .build()
+        .showAlert(animated: true)*/
         //prepareHorizontalScrolling()
     }
     
@@ -63,8 +84,22 @@ class ListScene: SKScene {
             let location = touch.location(in: self)
             let node = atPoint(location)
             
-            if node == sprite1Page1 || node == clickLabel, scrollView?.isDisabled == false { // or check for spriteName  ->  if node.name == "SpriteName"
-                loadGameScene()
+            if node != moveableNode , scrollView?.isDisabled == false { // or check for spriteName  ->  if node.name == "SpriteName"
+                print("TAP")
+                if let nombre = node.name {
+                    print(nombre)
+                    AppAlert(title: "Conectar con", message: nombre, preferredStyle: .alert)
+                    .addAction(title: "NO", style: .cancel) { _ in
+                        // action
+                    }
+                    .addAction(title: "SI", style: .default) { _ in
+                         // action
+                        self.connectService.invite(displayName: nombre)
+                    }
+                    .build()
+                    .showAlert(animated: true)
+                }
+                //loadGameScene()
             }
         }
     }
@@ -84,7 +119,56 @@ private extension ListScene {
         if let scene = SKScene(fileNamed: "GameScene"),
            let view = self.view {
             scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
+            
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.gameSession = self.connectService.session
+            
             view.presentScene(scene, transition: reveal)
         }
+      /*  let secondScene = GameScene(size: self.size)
+        
+        secondScene.scaleMode = .aspectFill
+
+//        secondScene.session = self.connectService.session //here we do the passing
+
+        let transition = SKTransition.fade(withDuration: 0.5)
+        self.view?.presentScene(secondScene, transition: transition)*/
+            
+       
+    }
+}
+
+// MARK: -Load peers data
+
+extension ListScene : MultipeerConnectServiceDelegate {
+    
+    func devicesNear(devices: [MCPeerID]) {
+        OperationQueue.main.addOperation {
+            print(devices)
+            self.listaUsuarios = devices.map({$0.displayName})
+            self.listaPeersIDs = devices
+            
+            for peer in self.listaUsuarios {
+                print(peer)
+                let myLabel = SKLabelNode(fontNamed:"University")
+                myLabel.name = peer
+                myLabel.text = peer
+                myLabel.fontSize = 30
+                myLabel.position = CGPoint(x:0, y: 0)
+                self.moveableNode.addChild(myLabel)
+            }
+        
+        }
+    }
+    
+    
+    func connectedDevicesChanged(manager: MultipeerConnectService, connectedDevices: [String]) {
+        print("Conectado")
+        loadGameScene()
+    }
+    
+    func sendTextService(didReceive text: String) {
+        
+        
     }
 }
