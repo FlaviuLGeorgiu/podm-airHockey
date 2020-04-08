@@ -114,16 +114,18 @@ private extension ListScene {
         scene.scaleMode = .aspectFill
         let transition = SKTransition.crossFade(withDuration: 1)
         view?.presentScene(scene, transition: transition)*/
-        let reveal = SKTransition.reveal(with: .down,
-        duration: 1)
-        if let scene = SKScene(fileNamed: "GameScene"),
-           let view = self.view {
-            scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
-            
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.gameSession = self.connectService.session
-            
-            view.presentScene(scene, transition: reveal)
+        OperationQueue.main.addOperation {
+            let reveal = SKTransition.reveal(with: .down,
+            duration: 1)
+            if let scene = SKScene(fileNamed: "GameScene"),
+               let view = self.view {
+                scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
+                
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                appDelegate.gameSession = self.connectService.session
+                
+                view.presentScene(scene, transition: reveal)
+            }
         }
       /*  let secondScene = GameScene(size: self.size)
         
