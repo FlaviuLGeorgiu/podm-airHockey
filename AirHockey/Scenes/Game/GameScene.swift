@@ -15,6 +15,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Session
     var session : MCSession? = nil
+    var connectService : MultipeerConnectService?
     
     
     // MARK: - Referencias a nodos de la escena
@@ -55,14 +56,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         self.session = appDelegate.gameSession
+        self.connectService = appDelegate.connectService
         
         // TODO [B04] Obten las referencias a los nodos de la escena
         //self.paddleTop = childNode(withName: "//paddleTop") as? SKSpriteNode
         self.paddleBottom = childNode(withName: "//paddleBottom") as? SKSpriteNode
         self.puck = childNode(withName: "//puck") as? SKSpriteNode
-        self.puck?.position = CGPoint(x: self.frame.maxX, y: 0)
+        if !(self.connectService?.isBrowser ?? false){
+            //self.puck?.position = CGPoint(x: self.frame.maxX, y: 0)
+            self.puck?.removeFromParent()
+            self.paddleBottom?.texture = SKTexture(imageNamed: "paddle_red")
+        }
         self.scoreboardTop = childNode(withName: "//score_top") as? SKLabelNode
         self.scoreboardBottom = childNode(withName: "//score_bottom") as? SKLabelNode
+        if !(self.connectService?.isBrowser ?? false){
+            self.scoreboardBottom?.fontColor = .systemRed
+        }
         
         // TODO [D05] Establece esta clase como el contact delegate del mundo fisico de la escena
         self.physicsWorld.contactDelegate = self
@@ -91,7 +100,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pathTopLeft.addLines(between: [goalTopLeft, topLeft, topMiddle])
         
         let drawableTopLeft = SKShapeNode(path: pathTopLeft)
-        drawableTopLeft.strokeColor = UIColor.blue
+        if self.connectService?.isBrowser ?? false {
+            drawableTopLeft.strokeColor = UIColor.blue
+        }else{
+            drawableTopLeft.strokeColor = UIColor.red
+        }
         drawableTopLeft.lineWidth = 10
         self.addChild(drawableTopLeft)
 
@@ -110,7 +123,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pathBottomLeft.addLines(between: [goalBottomLeft, bottomLeft, bottomMiddle])
         
         let drawableBottomLeft = SKShapeNode(path: pathBottomLeft)
-        drawableBottomLeft.strokeColor = UIColor.blue
+        if self.connectService?.isBrowser ?? false {
+            drawableBottomLeft.strokeColor = UIColor.blue
+        }else{
+            drawableBottomLeft.strokeColor = UIColor.red
+        }
         drawableBottomLeft.lineWidth = 10
         self.addChild(drawableBottomLeft)
 
@@ -125,7 +142,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // MARK: - Pinta Porterías
         // TODO [C12] Dibuja las dos porterias (rectangulos) y la linea de medio campo mediante nodos SKShapeNode
         let porteriaLado = SKShapeNode(rect: CGRect(x: self.frame.minX-goalWidthLado/1.5, y: -goalWidthLado/2, width: goalWidthLado, height: goalWidthLado))
-        porteriaLado.strokeColor = UIColor.blue
+        if self.connectService?.isBrowser ?? false {
+            porteriaLado.strokeColor = UIColor.blue
+        }else {
+            porteriaLado.strokeColor = UIColor.red
+        }
         porteriaLado.glowWidth = 4.0
         self.addChild(porteriaLado)
         

@@ -66,6 +66,7 @@ class ListScene: SKScene, ButtonSpriteNodeDelegate {
         prepareVerticalScrolling()
         
         appDelegate.gameScene = self
+        appDelegate.connectService = self.connectService
         
     }
     
