@@ -96,6 +96,8 @@ extension MultipeerConnectService : MCNearbyServiceAdvertiserDelegate {
         }
         .addAction(title: "SI", style: .default) { _ in
              // action
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            (appDelegate.gameScene as! ListScene).addLoadingGif()
             invitationHandler(true, self.session)
         }
         .build()

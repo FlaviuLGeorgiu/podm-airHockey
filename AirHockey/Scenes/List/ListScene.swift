@@ -16,6 +16,9 @@ class ListScene: SKScene {
     var listaUsuarios : [String] = []
     var listaPeersIDs : [MCPeerID] = []
 
+    let gifNode = SKSpriteNode(imageNamed: "loading0")
+    var back = SKShapeNode()
+    var fullScreenNode = SKSpriteNode()
     
     // MARK: - Properties
     
@@ -60,6 +63,9 @@ class ListScene: SKScene {
         addChild(moveableNode)
         prepareVerticalScrolling()
         
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.gameScene = self
+        
       /*  AppAlert(title: "Se quiere conectar un usuario", message: "PODM", preferredStyle: .alert)
         .addAction(title: "NO", style: .cancel) { _ in
             // action
@@ -70,12 +76,60 @@ class ListScene: SKScene {
         .build()
         .showAlert(animated: true)*/
         //prepareHorizontalScrolling()
+
+    }
+    
+    func addLoadingGif(){
+        
+        // GIF
+        self.gifNode.position = CGPoint(x: 0, y: 0)
+        var gifTextures: [SKTexture] = []
+        for i in 0...11 {
+            gifTextures.append(SKTexture(imageNamed: "loading\(i)"))
+        }
+        self.gifNode.run(SKAction.repeatForever(SKAction.animate(with: gifTextures, timePerFrame: 1/30)))
+        self.gifNode.size.height = self.frame.size.height / 10
+        self.gifNode.size.width =  self.frame.size.height / 10
+        self.gifNode.zPosition = 1
+        
+        // BACKGROUND
+        self.back = SKShapeNode.init(rectOf: CGSize(width: self.frame.size.height / 5, height: self.frame.size.height / 6))
+        self.back.fillColor = .black
+        self.back.strokeColor = .darkGray
+        self.back.alpha = 0.7
+        self.back.zPosition = 1
+        var corners = UIRectCorner()
+        corners = corners.union(.bottomLeft)
+        corners = corners.union(.bottomRight)
+        corners = corners.union(.topLeft)
+        corners = corners.union(.topRight)
+        self.back.path = UIBezierPath(roundedRect: CGRect(x: -(self.back.frame.width / 2),y:-(self.back.frame.height / 2),width: self.back.frame.width, height: self.back.frame.height),byRoundingCorners: corners, cornerRadii: CGSize(width:20,height:20)).cgPath
+        
+        // FULLSCREEN NODE TO AVOID UNWANTED TAPS
+        self.fullScreenNode = SKSpriteNode(color: .darkGray, size: CGSize(width: self.frame.size.height, height: self.frame.size.height))
+        self.fullScreenNode.position = CGPoint(x: 0, y: 0)
+        self.fullScreenNode.alpha = 0.1
+        self.fullScreenNode.zPosition = 1
+        
+        // ADD TO ROOT NODE
+        addChild(self.fullScreenNode)
+        addChild(self.back)
+        addChild(self.gifNode)
+    }
+    
+    func removeLoadingGif(){
+        self.gifNode.removeAllActions()
+        self.gifNode.removeFromParent()
+        self.fullScreenNode.removeFromParent()
+        self.back.removeFromParent()
     }
     
     override func willMove(from view: SKView) {
         scrollView?.removeFromSuperview()
         scrollView = nil
     }
+    
+    var auuuux = false;
     
     /// Touches began,
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -84,7 +138,7 @@ class ListScene: SKScene {
             let location = touch.location(in: self)
             let node = atPoint(location)
             
-            if node != moveableNode , scrollView?.isDisabled == false { // or check for spriteName  ->  if node.name == "SpriteName"
+            if node != moveableNode, node != back, node != fullScreenNode, node != gifNode, scrollView?.isDisabled == false { // or check for spriteName  ->  if node.name == "SpriteName"
                 print("TAP")
                 if let nombre = node.name {
                     print(nombre)
@@ -94,6 +148,7 @@ class ListScene: SKScene {
                     }
                     .addAction(title: "SI", style: .default) { _ in
                          // action
+                        self.addLoadingGif()
                         self.connectService.invite(displayName: nombre)
                     }
                     .build()
@@ -166,6 +221,7 @@ extension ListScene : MultipeerConnectServiceDelegate {
     
     func connectedDevicesChanged(manager: MultipeerConnectService, connectedDevices: [String]) {
         print("Conectado")
+        removeLoadingGif()
         loadGameScene()
     }
     
