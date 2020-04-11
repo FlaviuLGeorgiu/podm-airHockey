@@ -12,12 +12,14 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
     private var playButton : ButtonSpriteNode?
     private var airHockey : SKLabelNode?
     private var forTwo : SKLabelNode?
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     var textInput : UITextField?
     
     func didPushButton(_ sender: ButtonSpriteNode) {
         //tipo de animacion que se aplica al cambio de escena
         if(self.textInput?.text != ""){
+            appDelegate.myName = self.textInput?.text
             textInput?.removeFromSuperview()
             view?.gestureRecognizers?.removeAll()
             let reveal = SKTransition.reveal(with: .down,

@@ -9,7 +9,9 @@
 import SpriteKit
 import MultipeerConnectivity
 
-class ListScene: SKScene {
+class ListScene: SKScene, ButtonSpriteNodeDelegate {
+    
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     // MARK: - MultipeerConnect
     let connectService = MultipeerConnectService()
@@ -63,20 +65,8 @@ class ListScene: SKScene {
         addChild(moveableNode)
         prepareVerticalScrolling()
         
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.gameScene = self
         
-      /*  AppAlert(title: "Se quiere conectar un usuario", message: "PODM", preferredStyle: .alert)
-        .addAction(title: "NO", style: .cancel) { _ in
-            // action
-        }
-        .addAction(title: "SI", style: .default) { _ in
-             // action
-        }
-        .build()
-        .showAlert(animated: true)*/
-        //prepareHorizontalScrolling()
-
     }
     
     func addLoadingGif(){
@@ -129,7 +119,22 @@ class ListScene: SKScene {
         scrollView = nil
     }
     
-    var auuuux = false;
+    func didPushButton(_ sender: ButtonSpriteNode) {
+        if let nombre = sender.name {
+            print(nombre)
+            AppAlert(title: "Conectar con", message: nombre, preferredStyle: .alert)
+            .addAction(title: "NO", style: .cancel) { _ in
+                // action
+            }
+            .addAction(title: "SI", style: .default) { _ in
+                 // action
+                self.addLoadingGif()
+                self.connectService.invite(displayName: nombre)
+            }
+            .build()
+            .showAlert(animated: true)
+        }
+    }
     
     /// Touches began,
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -176,8 +181,7 @@ private extension ListScene {
                let view = self.view {
                 scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
                 
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.gameSession = self.connectService.session
+                self.appDelegate.gameSession = self.connectService.session
                 
                 view.presentScene(scene, transition: reveal)
             }
@@ -205,7 +209,28 @@ extension ListScene : MultipeerConnectServiceDelegate {
             self.listaUsuarios = devices.map({$0.displayName})
             self.listaPeersIDs = devices
             
+            var auxY = self.frame.maxY;
+            
+            //self.listaUsuarios = ["0", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+            
             for peer in self.listaUsuarios {
+                
+                
+                /*let buttonBackGround = ButtonSpriteNode(imageNamed: "boton")
+                buttonBackGround.size.width = self.frame.width / 1.5
+                buttonBackGround.position = CGPoint(x: 0, y: auxY - (2 * buttonBackGround.frame.size.height))
+                self.moveableNode.addChild(buttonBackGround)
+                
+                auxY = buttonBackGround.position.y
+                
+                let buttonLabel = SKLabelNode(fontNamed:"University")
+                buttonLabel.text = peer
+                buttonLabel.fontSize = 30
+                buttonLabel.position = CGPoint(x: 0, y: 0)
+                buttonLabel.verticalAlignmentMode = .center
+                buttonBackGround.addChild(buttonLabel)*/
+                
+                
                 print(peer)
                 let myLabel = SKLabelNode(fontNamed:"University")
                 myLabel.name = peer
@@ -213,6 +238,7 @@ extension ListScene : MultipeerConnectServiceDelegate {
                 myLabel.fontSize = 30
                 myLabel.position = CGPoint(x:0, y: 0)
                 self.moveableNode.addChild(myLabel)
+
             }
         
         }
