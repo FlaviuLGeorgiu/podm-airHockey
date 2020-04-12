@@ -177,6 +177,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.physicsBody?.categoryBitMask = self.limitsCategoryMask
         porteriaLado.physicsBody?.categoryBitMask = self.midfieldCategoryMask
         
+        
     }
 
     // MARK: - Metodos del ciclo del juego
@@ -198,6 +199,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 goal(score: self.scoreBottom,marcador: self.scoreboardBottom!,
                 textoWin: "BLUE WINS!",colorTexto: self.colorBotton,
                 spawnPos: spawnPos)
+            }else if ((puck.position.x) > self.frame.maxX){
+                 print("Cambio de mapa")
+                
+                let data: [String: CGFloat] = [
+                    "dx": self.puck!.physicsBody!.velocity.dx,
+                    "dy": self.puck!.physicsBody!.velocity.dy
+                ]
+                let jsonString = stringify(json: data, prettyPrinted: true)
+                print(jsonString)
+                self.connectService?.send(text: jsonString)
             }
             
             /*if ((puck.position.y) < self.frame.minY){
@@ -217,6 +228,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         
+    }
+    
+    func stringify(json: Any, prettyPrinted: Bool = false) -> String {
+        var options: JSONSerialization.WritingOptions = []
+        if prettyPrinted {
+          options = JSONSerialization.WritingOptions.prettyPrinted
+        }
+
+        do {
+          let data = try JSONSerialization.data(withJSONObject: json, options: options)
+          if let string = String(data: data, encoding: String.Encoding.utf8) {
+            return string
+          }
+        } catch {
+          print(error)
+        }
+
+        return ""
     }
 
     func updateScore() {
