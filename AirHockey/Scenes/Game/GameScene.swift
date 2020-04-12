@@ -57,6 +57,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         self.session = appDelegate.gameSession
         self.connectService = appDelegate.connectService
+        self.connectService?.gameDelegate = self
         
         // TODO [B04] Obten las referencias a los nodos de la escena
         //self.paddleTop = childNode(withName: "//paddleTop") as? SKSpriteNode
@@ -208,6 +209,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 ]
                 let jsonString = stringify(json: data, prettyPrinted: true)
                 print(jsonString)
+                
+                /* Paramos el puck
+                self.puck!.physicsBody!.velocity.dx = 0.0
+                self.puck!.physicsBody!.velocity.dy = 0.0*/
+                
                 self.connectService?.send(text: jsonString)
             }
             
@@ -426,4 +432,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
 
+}
+
+extension GameScene : GameControl {
+    func puckService(didReceive text: String) {
+        print("Hola desde puckService")
+        let data = text.data(using: .utf8)!
+        do {
+            if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
+            {
+               print(jsonArray) // use the json here
+               
+                self.puck?.physicsBody?.applyImpulse(CGVector(dx: jsonArray["dx"]! * -1, dy: jsonArray["dy"]! * -1))
+                
+                
+            } else {
+                print("bad json")
+            }
+        } catch let error as NSError {
+            print(error)
+        }
+    }
 }
