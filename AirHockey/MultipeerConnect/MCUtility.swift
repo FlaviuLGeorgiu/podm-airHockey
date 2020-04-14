@@ -18,6 +18,7 @@ protocol MultipeerConnectServiceDelegate {
 protocol GameControl {
     func puckService(didReceive text: String)
     func didGoal(_ goal: String)
+    func didWin(_ win: String)
 }
 
 class MultipeerConnectService : NSObject {
@@ -158,6 +159,8 @@ extension MultipeerConnectService : MCSessionDelegate {
         let str = String(data: data, encoding: .utf8)!
         if str == "goal" {
             self.gameDelegate?.didGoal(str)
+        }else if str == "win"{
+            self.gameDelegate?.didWin(str)
         }else{
             self.gameDelegate?.puckService(didReceive: str)
         }
