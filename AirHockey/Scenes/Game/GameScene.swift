@@ -317,6 +317,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func touchDown(withTouch t : UITouch) {
         // TODO [C05]
+        print("tap")
         //  - Obten las coordenadas de t en la escena
         let position = t.location(in: self)
         //  - Comprueba si hay algun nodo en dichas coordenadas
