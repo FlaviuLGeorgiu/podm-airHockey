@@ -17,6 +17,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var session : MCSession? = nil
     var connectService : MultipeerConnectService?
     
+    var estoyEnCampo = true
+    
     
     // MARK: - Referencias a nodos de la escena
     private var paddleBottom : SKSpriteNode?
@@ -64,8 +66,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.paddleBottom = childNode(withName: "//paddleBottom") as? SKSpriteNode
         self.puck = childNode(withName: "//puck") as? SKSpriteNode
         if !(self.connectService?.isBrowser ?? false){
-            //self.puck?.position = CGPoint(x: self.frame.maxX, y: 0)
-            self.puck?.removeFromParent()
+            self.puck?.position = CGPoint(x: self.frame.maxX + 50, y: 0)
+            self.estoyEnCampo = false
+            //self.puck?.removeFromParent()
             self.paddleBottom?.texture = SKTexture(imageNamed: "paddle_red")
         }
         self.scoreboardTop = childNode(withName: "//score_top") as? SKLabelNode
@@ -187,7 +190,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if let puck = self.puck{
             // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
-            if ((puck.position.y) > self.frame.maxY){
+            if ((puck.position.x) < self.frame.minX){
             //  - Incrementa la puntuacion del jugador correspondiente
                 self.scoreBottom = self.scoreBottom + 1
 
@@ -200,21 +203,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 goal(score: self.scoreBottom,marcador: self.scoreboardBottom!,
                 textoWin: "BLUE WINS!",colorTexto: self.colorBotton,
                 spawnPos: spawnPos)
-            }else if ((puck.position.x) > self.frame.maxX){
+            }else if ((puck.position.x) > self.frame.maxX) && estoyEnCampo {
                  print("Cambio de mapa")
                 
                 let data: [String: CGFloat] = [
+                    "y" : (self.frame.maxY - self.puck!.position.y),
                     "dx": self.puck!.physicsBody!.velocity.dx,
                     "dy": self.puck!.physicsBody!.velocity.dy
                 ]
                 let jsonString = stringify(json: data, prettyPrinted: true)
-                print(jsonString)
-                
-                /* Paramos el puck
-                self.puck!.physicsBody!.velocity.dx = 0.0
-                self.puck!.physicsBody!.velocity.dy = 0.0*/
-                
+               
+                self.estoyEnCampo = false
                 self.connectService?.send(text: jsonString)
+                
             }
             
             /*if ((puck.position.y) < self.frame.minY){
@@ -436,15 +437,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 extension GameScene : GameControl {
     func puckService(didReceive text: String) {
-        print("Hola desde puckService")
+//        print("Hola desde puckService")
         let data = text.data(using: .utf8)!
         do {
             if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
             {
-               print(jsonArray) // use the json here
-               
-                self.puck?.physicsBody?.applyImpulse(CGVector(dx: jsonArray["dx"]! * -1, dy: jsonArray["dy"]! * -1))
+//               print(jsonArray) // use the json here
+//                self.puck?.position = CGPoint(x: jsonArray["x"]!,y:self.frame.minY + jsonArray["y"]!)
                 
+                self.puck?.position.x = self.frame.maxX
+                self.puck?.position.y = self.frame.minY + jsonArray["y"]!
+                self.puck?.physicsBody?.velocity = CGVector(dx: jsonArray["dx"]! * -1, dy: jsonArray["dy"]! * -1)
+                self.estoyEnCampo = true
                 
             } else {
                 print("bad json")
