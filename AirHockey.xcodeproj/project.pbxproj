@@ -34,6 +34,7 @@
 		C76FDC2A2434ED1A008E9306 /* ListScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = C76FDC262434ED1A008E9306 /* ListScene.sks */; };
 		C76FDC2B2434ED1A008E9306 /* ListScene+VerticalScrolling.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76FDC272434ED1A008E9306 /* ListScene+VerticalScrolling.swift */; };
 		C76FDC2F2434FFB7008E9306 /* MenuScene+Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76FDC2E2434FFB7008E9306 /* MenuScene+Keyboard.swift */; };
+		C7A3A941244610DA009717D0 /* ButtonLabelSpriteNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A3A940244610DA009717D0 /* ButtonLabelSpriteNode.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -66,6 +67,7 @@
 		C76FDC262434ED1A008E9306 /* ListScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = ListScene.sks; sourceTree = "<group>"; };
 		C76FDC272434ED1A008E9306 /* ListScene+VerticalScrolling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ListScene+VerticalScrolling.swift"; sourceTree = "<group>"; };
 		C76FDC2E2434FFB7008E9306 /* MenuScene+Keyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MenuScene+Keyboard.swift"; sourceTree = "<group>"; };
+		C7A3A940244610DA009717D0 /* ButtonLabelSpriteNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonLabelSpriteNode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +176,7 @@
 				C76FDC252434ED1A008E9306 /* ListScene.swift */,
 				C76FDC272434ED1A008E9306 /* ListScene+VerticalScrolling.swift */,
 				C76FDC242434ED1A008E9306 /* ListScene+HorizontalScrolling.swift */,
+				C7A3A940244610DA009717D0 /* ButtonLabelSpriteNode.swift */,
 			);
 			path = List;
 			sourceTree = "<group>";
@@ -261,6 +264,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				85CAC68A22F4658F00153368 /* GameScene.swift in Sources */,
+				C7A3A941244610DA009717D0 /* ButtonLabelSpriteNode.swift in Sources */,
 				C76FDC2B2434ED1A008E9306 /* ListScene+VerticalScrolling.swift in Sources */,
 				7D54401D243E1AD800B624D5 /* MCUtility.swift in Sources */,
 				C734A02823F5D17000B207F2 /* SKScene+Extensions.swift in Sources */,

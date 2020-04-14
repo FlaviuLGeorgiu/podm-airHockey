@@ -27,9 +27,12 @@ class MultipeerConnectService : NSObject {
     // y debe contener solo letras minúsculas, números y guiones.
     private let MultipeerConnectServiceType = "send-data"
     
-    private let myPeerId = MCPeerID(displayName: UIDevice.current.name)
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    
+    private var myPeerId : MCPeerID
     private let serviceAdvertiser : MCNearbyServiceAdvertiser
     private let serviceBrowser : MCNearbyServiceBrowser
+    
     
     public var peerList = [MCPeerID]()
     
@@ -46,6 +49,7 @@ class MultipeerConnectService : NSObject {
     }()
     
     override init() {
+        self.myPeerId = MCPeerID(displayName: self.appDelegate.myName!)
         self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerId, discoveryInfo: nil, serviceType: MultipeerConnectServiceType)
         self.serviceBrowser = MCNearbyServiceBrowser(peer: myPeerId, serviceType: MultipeerConnectServiceType)
         
@@ -103,13 +107,12 @@ extension MultipeerConnectService : MCNearbyServiceAdvertiserDelegate {
         
         AppAlert(title: "Se quiere conectar un usuario", message: peerID.displayName, preferredStyle: .alert)
         .addAction(title: "NO", style: .cancel) { _ in
-            // action
+            (self.appDelegate.gameScene as! ListScene).conectando = false
         }
         .addAction(title: "SI", style: .default) { _ in
-             // action
             self.isBrowser = false
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            (appDelegate.gameScene as! ListScene).addLoadingGif()
+            (self.appDelegate.gameScene as! ListScene).conectando = true
+            (self.appDelegate.gameScene as! ListScene).addLoadingGif()
             invitationHandler(true, self.session)
         }
         .build()
