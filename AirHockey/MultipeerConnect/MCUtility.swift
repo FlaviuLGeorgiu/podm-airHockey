@@ -15,6 +15,12 @@ protocol MultipeerConnectServiceDelegate {
     func devicesNear(devices: [MCPeerID])
 }
 
+protocol GameControl {
+    func puckService(didReceive text: String)
+    func didGoal(_ goal: String)
+    func didWin(_ win: String)
+}
+
 class MultipeerConnectService : NSObject {
     
     // El tipo de servicio debe ser una cadena única, con un máximo de 15 caracteres
@@ -33,6 +39,8 @@ class MultipeerConnectService : NSObject {
     var isBrowser : Bool = false
     
     var delegate : MultipeerConnectServiceDelegate?
+    
+    var gameDelegate : GameControl?
     
     lazy var session : MCSession = {
         let session = MCSession(peer: self.myPeerId, securityIdentity: nil, encryptionPreference: .required)
@@ -150,9 +158,17 @@ extension MultipeerConnectService : MCSessionDelegate {
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        NSLog("%@", "didReceiveData: \(data)")
+//        NSLog("%@", "didReceiveData: \(data)")
         let str = String(data: data, encoding: .utf8)!
-        self.delegate?.sendTextService(didReceive: str)
+        if str == "goal" {
+            self.gameDelegate?.didGoal(str)
+        }else if str == "win"{
+            self.gameDelegate?.didWin(str)
+        }else{
+            self.gameDelegate?.puckService(didReceive: str)
+        }
+        //self.delegate?.sendTextService(didReceive: str)
+        
     }
     
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {

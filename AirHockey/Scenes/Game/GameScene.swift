@@ -17,23 +17,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var session : MCSession? = nil
     var connectService : MultipeerConnectService?
     
+    var estoyEnCampo = true
+    
     
     // MARK: - Referencias a nodos de la escena
-    private var paddleBottom : SKSpriteNode?
+    private var paddle : SKSpriteNode?
     //private var paddleTop : SKSpriteNode?
     private var puck : SKSpriteNode?
-    private var scoreboardBottom : SKLabelNode?
-    private var scoreboardTop : SKLabelNode?
+    private var scoreboard : SKLabelNode?
     private var labelWins : SKLabelNode?
 
     // MARK: Marcadores de los jugadores
-    private var scoreBottom : Int = 0
+    private var score : Int = 0
     //private var scoreTop : Int = 0
     private let maxScore = 2
 
     // MARK: Colores de los jugadores
-    private let colorTop = #colorLiteral(red: 1, green: 0.2156862766, blue: 0.3725490272, alpha: 1)
-    private let colorBotton = #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1)
+    private var color = #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1)
 
     // MARK: Categorias de los objetos fisicos
     private let paddleCategoryMask : UInt32 = 0b0001
@@ -57,22 +57,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         self.session = appDelegate.gameSession
         self.connectService = appDelegate.connectService
+        self.connectService?.gameDelegate = self
         
         // TODO [B04] Obten las referencias a los nodos de la escena
         //self.paddleTop = childNode(withName: "//paddleTop") as? SKSpriteNode
-        self.paddleBottom = childNode(withName: "//paddleBottom") as? SKSpriteNode
+        self.paddle = childNode(withName: "//paddleBottom") as? SKSpriteNode
         self.puck = childNode(withName: "//puck") as? SKSpriteNode
-        if !(self.connectService?.isBrowser ?? false){
-            //self.puck?.position = CGPoint(x: self.frame.maxX, y: 0)
-            self.puck?.removeFromParent()
-            self.paddleBottom?.texture = SKTexture(imageNamed: "paddle_red")
-        }
-        self.scoreboardTop = childNode(withName: "//score_top") as? SKLabelNode
-        self.scoreboardBottom = childNode(withName: "//score_bottom") as? SKLabelNode
-        if !(self.connectService?.isBrowser ?? false){
-            self.scoreboardBottom?.fontColor = .systemRed
-        }
         
+        self.scoreboard = childNode(withName: "//score_bottom") as? SKLabelNode
+        
+        if !(self.connectService?.isBrowser ?? false){
+            self.puck?.position = CGPoint(x: self.frame.maxX + 50, y: 0)
+            self.estoyEnCampo = false
+            self.color = #colorLiteral(red: 1, green: 0.2156862766, blue: 0.3725490272, alpha: 1)
+            //self.puck?.removeFromParent()
+            self.paddle?.texture = SKTexture(imageNamed: "paddle_red")
+            self.scoreboard?.fontColor = self.color
+        }
+
         // TODO [D05] Establece esta clase como el contact delegate del mundo fisico de la escena
         self.physicsWorld.contactDelegate = self
                 
@@ -177,6 +179,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.physicsBody?.categoryBitMask = self.limitsCategoryMask
         porteriaLado.physicsBody?.categoryBitMask = self.midfieldCategoryMask
         
+        
     }
 
     // MARK: - Metodos del ciclo del juego
@@ -185,19 +188,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if let puck = self.puck{
             // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
-            if ((puck.position.y) > self.frame.maxY){
+            if ((puck.position.x) < self.frame.minX){
             //  - Incrementa la puntuacion del jugador correspondiente
-                self.scoreBottom = self.scoreBottom + 1
+//                self.scoreBottom = self.scoreBottom + 1
 
             //  - Define el punto de regeneracion del disco (en la mitad del campo del jugador contrario)
                 let spawnPos = CGPoint(x:self.frame.midX,
-                y:self.frame.origin.y +
-                  self.frame.size.height * 0.75)
+                y:self.frame.midY)
                 //self.puck?.position = spawnPos
             //  - Llama a `goal` indicando los datos del marcador que debe resaltar, el texto a mostrar en pantalla en caso de ganar la partida, su color, y el punto de regeneracion del disco.
-                goal(score: self.scoreBottom,marcador: self.scoreboardBottom!,
+                print("GOLAAAAAAAASO")
+                
+                self.connectService?.send(text: "goal")
+                resetPuck(pos: spawnPos)
+                
+              /*  goal(score: self.scoreBottom,marcador: self.scoreboardBottom!,
                 textoWin: "BLUE WINS!",colorTexto: self.colorBotton,
-                spawnPos: spawnPos)
+                spawnPos: spawnPos)*/
+            }else if ((puck.position.x) > self.frame.maxX) && estoyEnCampo {
+                 print("Cambio de mapa")
+                
+                let data: [String: CGFloat] = [
+                    "y" : (self.frame.maxY - self.puck!.position.y),
+                    "dx": self.puck!.physicsBody!.velocity.dx,
+                    "dy": self.puck!.physicsBody!.velocity.dy
+                ]
+                let jsonString = stringify(json: data, prettyPrinted: true)
+               
+                self.estoyEnCampo = false
+                self.connectService?.send(text: jsonString)
+                
             }
             
             /*if ((puck.position.y) < self.frame.minY){
@@ -218,11 +238,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
     }
+    
+    func stringify(json: Any, prettyPrinted: Bool = false) -> String {
+        var options: JSONSerialization.WritingOptions = []
+        if prettyPrinted {
+          options = JSONSerialization.WritingOptions.prettyPrinted
+        }
+
+        do {
+          let data = try JSONSerialization.data(withJSONObject: json, options: options)
+          if let string = String(data: data, encoding: String.Encoding.utf8) {
+            return string
+          }
+        } catch {
+          print(error)
+        }
+
+        return ""
+    }
 
     func updateScore() {
         // TODO [B05] Poner como texto de las etiquetas scoreboardTop y scoreboardBottom los valores scoreTop y scoreBottom respectivamente
         //self.scoreboardTop?.text = String(scoreTop)
-        self.scoreboardBottom?.text = String(scoreBottom)
+        self.scoreboard?.text = String(score)
     }
     
     func resetPuck(pos : CGPoint) {
@@ -259,53 +297,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
 
-    func goal(score: Int, marcador: SKLabelNode, textoWin : String, colorTexto : UIColor, spawnPos: CGPoint) {
-        updateScore()
-        if(score == self.maxScore){
-            self.scoreboardTop?.zPosition = 2
-            self.scoreboardBottom?.zPosition = 2
-            self.labelWins = childNode(withName: "//label_wins") as? SKLabelNode
-            self.labelWins?.fontColor = colorTexto
-            self.labelWins?.text = textoWin
-            self.labelWins?.isHidden = false
-            
-            self.puck?.removeFromParent()
-            self.puck = nil
-            let bigScaleAction = SKAction.scale(to: 1.2, duration: 0.5)
-            let originScaleAction = SKAction.scale(to: 1, duration: 0.5)
-            let sequence = SKAction.sequence([bigScaleAction, originScaleAction])
-            let actionRepeat = SKAction.repeat(sequence, count: 3)
-            let actionRun = SKAction.run {
-                self.goToTitle()
-            }
-            let finishSequence = SKAction.sequence([actionRepeat,actionRun])
-            marcador.run(finishSequence)
-            
-        }else{
-            // TODO [D03] Reproducir sobre la escena la acción `actionSoundGoal`
-            self.run(self.actionSoundGoal)
-            
-            // TODO [D07]
-            //  - Crear una acción que repita 3 veces: escalar a 1.2 durante 0.1s, escalar a 1.0 durante 0.01s
-            let escalaGrande = SKAction.scale(to: 1.2, duration: 0.1)
-            let escalaPequeno = SKAction.scale(to: 1, duration: 0.01)
-            let sequence = SKAction.sequence([escalaGrande, escalaPequeno])
-            let actionRepeat =  SKAction.repeat(sequence, count: 3)
-            marcador.run(actionRepeat)
-            //  - Llamar a resetPuck proporcionando la posiciom de respawn
-            resetPuck(pos: spawnPos)
-        }
-        
-        // TODO [D09]
-        //  - Comprobamos si el score ha alcanzado maxScore, en tal caso la partida ha terminado
-    
-        //  - Si la partida ha terminado, no mostraremos la accion del marcador ni resetearemos el disco, en su lugar:
-        //      - Obtenemos de la escena la etiqueta "//label_wins", ponemos como color de fuente el colorTexto recibido, como texto el textoWin recibido, y hacemos que se muestre (propiedad isHidden)
-        //      - Eliminamos el disco de la escena (eliminandolo de su nodo padre) y lo ponemos a nil
-        //      - Ejecutamos una accion que repita 3 veces: escalar a 1.2 durante 0.5s, escalar a 1.0 durante 0.5s, y tras las 3 repeticiones, que ejecute goToTitle().
-    }
-    
-    
     // MARK: - Eventos de la pantalla tactil
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -326,12 +317,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func touchDown(withTouch t : UITouch) {
         // TODO [C05]
+        print("tap")
         //  - Obten las coordenadas de t en la escena
         let position = t.location(in: self)
         //  - Comprueba si hay algun nodo en dichas coordenadas
         let nodoTocado = self.atPoint(position)
         //  - Si hay un nodo, y es paddleTop o paddleBottom, asocia a dicho nodo mediante el diccionario self.activeTouches.
-        if(nodoTocado == paddleBottom){ //|| nodoTocado == paddleTop){
+        if(nodoTocado == paddle){ //|| nodoTocado == paddleTop){
             //self.activeTouches[t] = nodoTocado
             activeTouches[t] = createDragNode(linkedTo: nodoTocado)
         }
@@ -397,4 +389,89 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
 
+}
+
+extension GameScene : GameControl {
+    func didWin(_ win: String) {
+    
+        self.scoreboard?.zPosition = 2
+        self.labelWins = childNode(withName: "//label_wins") as? SKLabelNode
+        self.labelWins?.fontColor = self.color
+        self.labelWins?.text = "Has perdido"
+        self.labelWins?.isHidden = false
+        
+        let bigScaleAction = SKAction.scale(to: 1.2, duration: 0.5)
+        let originScaleAction = SKAction.scale(to: 1, duration: 0.5)
+        let sequence = SKAction.sequence([bigScaleAction, originScaleAction])
+        let actionRepeat = SKAction.repeat(sequence, count: 3)
+        let actionRun = SKAction.run {
+            self.goToTitle()
+        }
+        let finishSequence = SKAction.sequence([actionRepeat,actionRun])
+        self.scoreboard!.run(finishSequence)
+    
+    }
+    
+    
+    
+    func didGoal(_ goal: String) {
+        self.score += 1
+        self.updateScore()
+        
+        self.run(self.actionSoundGoal)
+        if(self.score == self.maxScore){
+            
+            self.connectService?.send(text: "win")
+            
+            self.scoreboard?.zPosition = 2
+            self.labelWins = childNode(withName: "//label_wins") as? SKLabelNode
+            self.labelWins?.fontColor = self.color
+            self.labelWins?.text = "Has ganado"
+            self.labelWins?.isHidden = false
+            
+            self.puck?.removeFromParent()
+            self.puck = nil
+            let bigScaleAction = SKAction.scale(to: 1.2, duration: 0.5)
+            let originScaleAction = SKAction.scale(to: 1, duration: 0.5)
+            let sequence = SKAction.sequence([bigScaleAction, originScaleAction])
+            let actionRepeat = SKAction.repeat(sequence, count: 3)
+            let actionRun = SKAction.run {
+                self.goToTitle()
+            }
+            let finishSequence = SKAction.sequence([actionRepeat,actionRun])
+            self.scoreboard!.run(finishSequence)
+            
+        }else{
+        
+            // TODO [D07]
+            //  - Crear una acción que repita 3 veces: escalar a 1.2 durante 0.1s, escalar a 1.0 durante 0.01s
+            let escalaGrande = SKAction.scale(to: 1.2, duration: 0.1)
+            let escalaPequeno = SKAction.scale(to: 1, duration: 0.01)
+            let sequence = SKAction.sequence([escalaGrande, escalaPequeno])
+            let actionRepeat =  SKAction.repeat(sequence, count: 3)
+            self.scoreboard!.run(actionRepeat)
+        }
+    }
+    
+    func puckService(didReceive text: String) {
+//        print("Hola desde puckService")
+        let data = text.data(using: .utf8)!
+        do {
+            if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
+            {
+//               print(jsonArray) // use the json here
+//                self.puck?.position = CGPoint(x: jsonArray["x"]!,y:self.frame.minY + jsonArray["y"]!)
+                
+                self.puck?.position.x = self.frame.maxX
+                self.puck?.position.y = self.frame.minY + jsonArray["y"]!
+                self.puck?.physicsBody?.velocity = CGVector(dx: jsonArray["dx"]! * -1, dy: jsonArray["dy"]! * -1)
+                self.estoyEnCampo = true
+                
+            } else {
+                print("bad json")
+            }
+        } catch let error as NSError {
+            print(error)
+        }
+    }
 }
