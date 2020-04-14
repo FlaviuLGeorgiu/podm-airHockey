@@ -17,6 +17,7 @@ protocol MultipeerConnectServiceDelegate {
 
 protocol GameControl {
     func puckService(didReceive text: String)
+    func didGoal(_ goal: String)
 }
 
 class MultipeerConnectService : NSObject {
@@ -155,7 +156,11 @@ extension MultipeerConnectService : MCSessionDelegate {
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
 //        NSLog("%@", "didReceiveData: \(data)")
         let str = String(data: data, encoding: .utf8)!
-        self.gameDelegate?.puckService(didReceive: str)
+        if str == "goal" {
+            self.gameDelegate?.didGoal(str)
+        }else{
+            self.gameDelegate?.puckService(didReceive: str)
+        }
         //self.delegate?.sendTextService(didReceive: str)
         
     }

@@ -192,12 +192,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
             if ((puck.position.x) < self.frame.minX){
             //  - Incrementa la puntuacion del jugador correspondiente
-                self.scoreBottom = self.scoreBottom + 1
+//                self.scoreBottom = self.scoreBottom + 1
 
             //  - Define el punto de regeneracion del disco (en la mitad del campo del jugador contrario)
                 let spawnPos = CGPoint(x:self.frame.midX,
-                y:self.frame.origin.y +
-                  self.frame.size.height * 0.75)
+                y:self.frame.midY)
                 //self.puck?.position = spawnPos
             //  - Llama a `goal` indicando los datos del marcador que debe resaltar, el texto a mostrar en pantalla en caso de ganar la partida, su color, y el punto de regeneracion del disco.
                 goal(score: self.scoreBottom,marcador: self.scoreboardBottom!,
@@ -296,7 +295,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func goal(score: Int, marcador: SKLabelNode, textoWin : String, colorTexto : UIColor, spawnPos: CGPoint) {
-        updateScore()
+//        updateScore()
         if(score == self.maxScore){
             self.scoreboardTop?.zPosition = 2
             self.scoreboardBottom?.zPosition = 2
@@ -318,16 +317,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             marcador.run(finishSequence)
             
         }else{
-            // TODO [D03] Reproducir sobre la escena la acción `actionSoundGoal`
-            self.run(self.actionSoundGoal)
+            self.connectService?.send(text: "goal")
+            // TODO [D03] Reproducir sobre la escena la acción `actionSoundGoal
             
-            // TODO [D07]
-            //  - Crear una acción que repita 3 veces: escalar a 1.2 durante 0.1s, escalar a 1.0 durante 0.01s
-            let escalaGrande = SKAction.scale(to: 1.2, duration: 0.1)
-            let escalaPequeno = SKAction.scale(to: 1, duration: 0.01)
-            let sequence = SKAction.sequence([escalaGrande, escalaPequeno])
-            let actionRepeat =  SKAction.repeat(sequence, count: 3)
-            marcador.run(actionRepeat)
             //  - Llamar a resetPuck proporcionando la posiciom de respawn
             resetPuck(pos: spawnPos)
         }
@@ -436,6 +428,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 }
 
 extension GameScene : GameControl {
+    
+    func didGoal(_ goal: String) {
+        self.scoreBottom += 1
+        self.updateScore()
+        
+        self.run(self.actionSoundGoal)
+        
+        // TODO [D07]
+        //  - Crear una acción que repita 3 veces: escalar a 1.2 durante 0.1s, escalar a 1.0 durante 0.01s
+        let escalaGrande = SKAction.scale(to: 1.2, duration: 0.1)
+        let escalaPequeno = SKAction.scale(to: 1, duration: 0.01)
+        let sequence = SKAction.sequence([escalaGrande, escalaPequeno])
+        let actionRepeat =  SKAction.repeat(sequence, count: 3)
+        self.scoreboardBottom!.run(actionRepeat)
+    }
+    
     func puckService(didReceive text: String) {
 //        print("Hola desde puckService")
         let data = text.data(using: .utf8)!
