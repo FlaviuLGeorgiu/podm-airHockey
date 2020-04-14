@@ -2,19 +2,40 @@
 //  ButtonSpriteNode.swift
 //  AirHockey
 //
-//  Created by Máster Móviles on 13/02/2020.
-//  Copyright © 2020 Miguel Angel Lozano Ortega. All rights reserved.
 //
 
 import SpriteKit
 
-protocol ButtonSpriteNodeDelegate {
-    func didPushButton(_ sender: ButtonSpriteNode)
+protocol ButtonLabelSpriteNodeDelegate {
+    func didPushButton(_ sender: ButtonLabelSpriteNode)
 }
 
-class ButtonSpriteNode: SKSpriteNode {
+class ButtonLabelSpriteNode: SKSpriteNode {
     
-    var delegate : ButtonSpriteNodeDelegate?
+    init(_ label : String) {
+        let texture = SKTexture(imageNamed: "boton")
+        super.init(texture: texture, color: .clear, size: texture.size())
+        
+        self.zPosition = 0
+        
+        let buttonLabel = SKLabelNode(fontNamed:"University")
+        
+        buttonLabel.text = label
+        buttonLabel.zPosition = 1
+        buttonLabel.fontSize = 30
+        buttonLabel.position = CGPoint(x: 0, y: 0)
+        buttonLabel.verticalAlignmentMode = .center
+        buttonLabel.horizontalAlignmentMode = .center
+        
+        self.addChild(buttonLabel)
+    }
+    
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    var delegate : ButtonLabelSpriteNodeDelegate?
     
     // Indica el estado del botón
     var pressed : Bool = false
@@ -54,3 +75,4 @@ class ButtonSpriteNode: SKSpriteNode {
         self.run(SKAction.scale(to: 1.0, duration: 0.1))
     }
 }
+
