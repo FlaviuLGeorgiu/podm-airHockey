@@ -125,8 +125,10 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
     }
     
     override func willMove(from view: SKView) {
-        scrollView?.removeFromSuperview()
-        scrollView = nil
+        self.removeAllChildren()
+        for view in self.view!.subviews {
+            view.removeFromSuperview()
+        }
     }
     
     func didPushButton(_ sender: ButtonLabelSpriteNode) {
@@ -157,7 +159,7 @@ private extension ListScene {
         OperationQueue.main.addOperation {
             let reveal = SKTransition.reveal(with: .down,
             duration: 1)
-            if let scene = SKScene(fileNamed: "GameScene"),
+            if let scene = GameScene(fileNamed: "GameScene"),
                let view = self.view {
                 scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
                 
