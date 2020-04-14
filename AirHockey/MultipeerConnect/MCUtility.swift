@@ -30,6 +30,8 @@ class MultipeerConnectService : NSObject {
     
     public var peerList = [MCPeerID]()
     
+    var isBrowser : Bool = false
+    
     var delegate : MultipeerConnectServiceDelegate?
     
     lazy var session : MCSession = {
@@ -78,6 +80,7 @@ class MultipeerConnectService : NSObject {
     
     // Método que se ejecutará para realizar una invitación a un peer encontrado. En este caso el peer ya estará preseleccionado.
     func invite(displayName: String) {
+        self.isBrowser = true
         let conectingPeer = self.peerList.first(where: {$0.displayName == displayName})!
         serviceBrowser.invitePeer(conectingPeer, to: self.session, withContext: nil, timeout: 10)
         
@@ -99,6 +102,7 @@ extension MultipeerConnectService : MCNearbyServiceAdvertiserDelegate {
             (self.appDelegate.gameScene as! ListScene).conectando = false
         }
         .addAction(title: "SI", style: .default) { _ in
+            self.isBrowser = false
             (self.appDelegate.gameScene as! ListScene).conectando = true
             (self.appDelegate.gameScene as! ListScene).addLoadingGif()
             invitationHandler(true, self.session)

@@ -71,6 +71,7 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
         prepareVerticalScrolling()
         
         appDelegate.gameScene = self
+        appDelegate.connectService = self.connectService
         
         myNameIs.text = "My Name is: " + self.appDelegate.myName!
         myNameIs.fontSize = 35
