@@ -186,6 +186,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         
+        
+        
+        
         if let puck = self.puck{
             // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
             if ((puck.position.x) < self.frame.minX){
@@ -205,7 +208,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
               /*  goal(score: self.scoreBottom,marcador: self.scoreboardBottom!,
                 textoWin: "BLUE WINS!",colorTexto: self.colorBotton,
                 spawnPos: spawnPos)*/
-            }else if ((puck.position.x) > self.frame.maxX) && estoyEnCampo {
+            }else if ((puck.position.x) > self.frame.maxX) && self.estoyEnCampo {
                  print("Cambio de mapa")
                 
                 let data: [String: CGFloat] = [
@@ -459,10 +462,7 @@ extension GameScene : GameControl {
         do {
             if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
             {
-//               print(jsonArray) // use the json here
-//                self.puck?.position = CGPoint(x: jsonArray["x"]!,y:self.frame.minY + jsonArray["y"]!)
-                
-                self.puck?.position.x = self.frame.maxX
+                self.puck?.position.x = self.frame.maxX - 1
                 self.puck?.position.y = self.frame.minY + jsonArray["y"]!
                 self.puck?.physicsBody?.velocity = CGVector(dx: jsonArray["dx"]! * -1, dy: jsonArray["dy"]! * -1)
                 self.estoyEnCampo = true
