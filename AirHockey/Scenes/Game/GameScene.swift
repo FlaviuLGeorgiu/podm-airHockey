@@ -53,11 +53,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Inicializacion de la escena
     
     override func didMove(to view: SKView) {
-        
+    
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         self.session = appDelegate.gameSession
         self.connectService = appDelegate.connectService
         self.connectService?.gameDelegate = self
+        
+        print(UIScreen.main.bounds.height)
+        print(appDelegate.altura)
         
         // TODO [B04] Obten las referencias a los nodos de la escena
         //self.paddleTop = childNode(withName: "//paddleTop") as? SKSpriteNode

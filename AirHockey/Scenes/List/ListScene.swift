@@ -149,6 +149,24 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
             }
         }
     }
+    
+    func stringify(json: Any, prettyPrinted: Bool = false) -> String {
+        var options: JSONSerialization.WritingOptions = []
+        if prettyPrinted {
+          options = JSONSerialization.WritingOptions.prettyPrinted
+        }
+
+        do {
+          let data = try JSONSerialization.data(withJSONObject: json, options: options)
+          if let string = String(data: data, encoding: String.Encoding.utf8) {
+            return string
+          }
+        } catch {
+          print(error)
+        }
+
+        return ""
+    }
 }
 
 // MARK: - Load Game Scene
@@ -174,6 +192,28 @@ private extension ListScene {
 // MARK: -Load peers data
 
 extension ListScene : MultipeerConnectServiceDelegate {
+    func didReciveSize(didReceive text: String) {
+        let data = text.data(using: .utf8)!
+        do {
+            if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
+            {
+                var altura = UIScreen.main.bounds.height
+                if jsonArray["height"]! <= altura{
+                    altura = jsonArray["height"]!
+                }
+                self.appDelegate.altura = altura
+                removeLoadingGif()
+                loadGameScene()
+                
+            } else {
+                print("bad json")
+            }
+        } catch let error as NSError {
+            print(error)
+        }
+        
+    }
+    
     
     func devicesNear(devices: [MCPeerID]) {
         OperationQueue.main.addOperation {
@@ -213,12 +253,13 @@ extension ListScene : MultipeerConnectServiceDelegate {
     
     func connectedDevicesChanged(manager: MultipeerConnectService, connectedDevices: [String]) {
         print("Conectado")
-        removeLoadingGif()
-        loadGameScene()
+//        removeLoadingGif()
+//        loadGameScene()
+        let data: [String: CGFloat] = [
+            "height" : UIScreen.main.bounds.height
+        ]
+        let jsonString = stringify(json: data, prettyPrinted: true)
+        self.connectService.send(text: jsonString)
     }
     
-    func sendTextService(didReceive text: String) {
-        
-        
-    }
 }

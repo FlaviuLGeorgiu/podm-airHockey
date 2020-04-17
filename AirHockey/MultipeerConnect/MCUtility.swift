@@ -11,7 +11,7 @@ import MultipeerConnectivity
 
 protocol MultipeerConnectServiceDelegate {
     func connectedDevicesChanged(manager : MultipeerConnectService, connectedDevices: [String])
-    func sendTextService(didReceive text: String)
+    func didReciveSize(didReceive text: String)
     func devicesNear(devices: [MCPeerID])
 }
 
@@ -165,7 +165,22 @@ extension MultipeerConnectService : MCSessionDelegate {
         }else if str == "win"{
             self.gameDelegate?.didWin(str)
         }else{
-            self.gameDelegate?.puckService(didReceive: str)
+            let data = str.data(using: .utf8)!
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
+                {
+                    if let _ = json["x"]{
+                        self.gameDelegate?.puckService(didReceive: str)
+                    }else if let _ = json["height"]{
+                        self.delegate?.didReciveSize(didReceive: str)
+                    }
+                    
+                } else {
+                    print("bad json")
+                }
+            } catch let error as NSError {
+                print(error)
+            }
         }
         //self.delegate?.sendTextService(didReceive: str)
         
