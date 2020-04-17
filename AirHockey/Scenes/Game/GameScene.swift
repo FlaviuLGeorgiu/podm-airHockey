@@ -19,6 +19,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var estoyEnCampo = true
     
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     // MARK: - Referencias a nodos de la escena
     private var paddle : SKSpriteNode?
@@ -56,7 +57,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
     
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        
         self.session = appDelegate.gameSession
         self.connectService = appDelegate.connectService
         self.connectService?.gameDelegate = self
@@ -94,10 +95,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func createSceneLimits() {
-        // TODO [C03] Define los limites del escenario como un cuerpo físico con forma edge loop de las dimensiones de la escena
-        //self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame)
-        
-        // TODO [C11] Define los limites del escenario dejando los huecos de las porterias. Puedes utilizar dos cuerpos que definan cada uno de los laterales del escenario a partir de un path, y combinarlos en un unico cuerpo compuesto.
         let goalWidthLado = self.altura / 2
         // MARK: - Top Left
         // Definimos las referencias de las esquinas de la escena
@@ -195,9 +192,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         
-        
-        
-        
         if let puck = self.puck{
             // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
             if ((puck.position.x) < self.frame.minX){
@@ -232,20 +226,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
             }
             
-            /*if ((puck.position.y) < self.frame.minY){
-            //  - Incrementa la puntuacion del jugador correspondiente
-                self.scoreTop = self.scoreTop + 1
-
-            //  - Define el punto de regeneracion del disco (en la mitad del campo del jugador contrario)
-                let spawnPos = CGPoint(x:self.frame.midX,
-                y:self.frame.origin.y +
-                  self.frame.size.height * 0.25)
-                //self.puck?.position = spawnPos
-            //  - Llama a `goal` indicando los datos del marcador que debe resaltar, el texto a mostrar en pantalla en caso de ganar la partida, su color, y el punto de regeneracion del disco.
-                goal(score: self.scoreTop,marcador: self.scoreboardTop!,
-                textoWin: "RED WINS!",colorTexto: self.colorTop,
-                spawnPos: spawnPos)
-            }*/
         }
         
         
@@ -294,8 +274,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let sequence = SKAction.sequence([scaleSmall, dynamicTrueAction])
         self.puck?.run(sequence)
     }
-    
+    // MARK: GOTOTITLE
     func goToTitle() {
+        
+        self.connectService?.session.disconnect()
+        self.connectService?.disconnect()
+        self.appDelegate.connectService?.disconnect()
+        
         // TODO [D10] Cargamos la escena `MenuScene`, con modo aspectFill, y la presentamos mediante ua transicion de tipo `flipHorizontal` que dure 0.25s.
         let flip = SKTransition.flipHorizontal(withDuration: 0.25)
         
@@ -339,9 +324,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //self.activeTouches[t] = nodoTocado
             activeTouches[t] = createDragNode(linkedTo: nodoTocado)
         }
-        
-        // TODO [C09] En lugar de asociar en self.activeTouches el nodo encontrado a t, llama a createDragNode(linkedTo:) para crear un nuevo nodo conectado a la pala, y asocia dicho nodo al touch
-        
+      
     }
     
     func touchMoved(withTouch t : UITouch) {
@@ -459,6 +442,7 @@ extension GameScene : GameControl {
                 self.goToTitle()
             }
             let finishSequence = SKAction.sequence([actionRepeat,actionRun])
+            
             self.scoreboard!.run(finishSequence)
             
         }else{

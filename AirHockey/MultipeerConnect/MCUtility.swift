@@ -13,6 +13,7 @@ protocol MultipeerConnectServiceDelegate {
     func connectedDevicesChanged(manager : MultipeerConnectService, connectedDevices: [String])
     func didReciveSize(didReceive text: String)
     func devicesNear(devices: [MCPeerID])
+    func notConnected()
 }
 
 protocol GameControl {
@@ -86,6 +87,11 @@ class MultipeerConnectService : NSObject {
         
     }
     
+    func disconnect(){
+        self.serviceAdvertiser.stopAdvertisingPeer()
+        self.serviceBrowser.stopBrowsingForPeers()
+    }
+    
     // Método que se ejecutará para realizar una invitación a un peer encontrado. En este caso el peer ya estará preseleccionado.
     func invite(displayName: String) {
         self.isBrowser = true
@@ -108,6 +114,7 @@ extension MultipeerConnectService : MCNearbyServiceAdvertiserDelegate {
         AppAlert(title: "Se quiere conectar un usuario", message: peerID.displayName, preferredStyle: .alert)
         .addAction(title: "NO", style: .cancel) { _ in
             (self.appDelegate.gameScene as! ListScene).conectando = false
+            invitationHandler(false, self.session)
         }
         .addAction(title: "SI", style: .default) { _ in
             self.isBrowser = false
@@ -130,12 +137,16 @@ extension MultipeerConnectService : MCNearbyServiceBrowserDelegate {
     }
     
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
-        //NSLog("%@", "foundPeer: \(peerID)")
-       // NSLog("%@", "invitePeer: \(peerID)")
-//        browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10)
-        self.peerList.append(peerID)
-        self.delegate?.devicesNear(devices: self.peerList)
-//        print("foundPeer: \(peerID)")
+        var existe = false
+        for id in self.peerList{
+            if peerID.displayName == id.displayName {
+                existe = true
+            }
+        }
+        if !existe {
+            self.peerList.append(peerID)
+            self.delegate?.devicesNear(devices: self.peerList)
+        }
     }
     
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
@@ -153,8 +164,20 @@ extension MultipeerConnectService : MCSessionDelegate {
     
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         NSLog("%@", "peer \(peerID) didChangeState: \(state.rawValue)")
-        self.delegate?.connectedDevicesChanged(manager: self, connectedDevices:
-            session.connectedPeers.map{$0.displayName})
+        
+        switch state {
+        case .connected:
+             self.delegate?.connectedDevicesChanged(manager: self, connectedDevices:
+                       session.connectedPeers.map{$0.displayName})
+            break
+        case .notConnected:
+             self.delegate?.notConnected()
+            break
+        default:
+            break
+        }
+        
+       
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
