@@ -53,6 +53,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var diffHeight : CGFloat = 0.0
     private var altura : CGFloat = 0.0
     private var anchura : CGFloat = 0.0
+    private var minAnchuraUIScreenEnValorFrame : CGFloat = 0.0
+    private var ajuste : CGFloat = 0.0
     // MARK: - Inicializacion de la escena
     
     override func didMove(to view: SKView) {
@@ -65,16 +67,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.diffHeight = UIScreen.main.bounds.height - appDelegate.altura!
         self.altura = appDelegate.altura!
         self.anchura = appDelegate.anchura!
-        print(UIScreen.main.bounds.height)
-        print(appDelegate.altura)
-        print(self.frame.height)
+        self.minAnchuraUIScreenEnValorFrame = self.frame.minX + self.convertWidth(w: (UIScreen.main.bounds.width - self.anchura))
         
+        print(UIScreen.main.bounds.height)
+        print(appDelegate.altura! as Any)
+        print(self.frame.height)
+        print(UIScreen.main.bounds.width)
+        print(appDelegate.anchura! as Any)
+        print(self.frame.width)
+        
+        self.ajuste = self.altura / UIScreen.main.bounds.height
+
         // TODO [B04] Obten las referencias a los nodos de la escena
         //self.paddleTop = childNode(withName: "//paddleTop") as? SKSpriteNode
         self.paddle = childNode(withName: "//paddleBottom") as? SKSpriteNode
         self.puck = childNode(withName: "//puck") as? SKSpriteNode
         
+        self.paddle?.scale(to: CGSize(width: (self.paddle?.size.width)! * self.ajuste, height: (self.paddle?.size.height)! * self.ajuste))
+        self.puck?.scale(to: CGSize(width: (self.puck?.size.width)! * self.ajuste, height: (self.puck?.size.height)! * self.ajuste))
+        
+        self.paddle!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
+        self.puck!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/2)
+        
         self.scoreboard = childNode(withName: "//score_bottom") as? SKLabelNode
+        self.scoreboard?.fontSize = self.scoreboard!.fontSize * self.ajuste
+        self.scoreboard!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/2)
         
         if !(self.connectService?.isBrowser ?? false){
             self.puck?.position = CGPoint(x: self.frame.maxX + 50, y: 0)
@@ -95,12 +112,53 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func createSceneLimits() {
-        let goalWidthLado = self.altura / 2
-        // MARK: - Top Left
+
+        // TODO [C03] Define los limites del escenario como un cuerpo físico con forma edge loop de las dimensiones de la escena
+        //self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame)
+        
+        // TODO [C11] Define los limites del escenario dejando los huecos de las porterias. Puedes utilizar dos cuerpos que definan cada uno de los laterales del escenario a partir de un path, y combinarlos en un unico cuerpo compuesto.
+        
+        // MARK: - PORTERIA
+        // TODO [C12] Dibuja las dos porterias (rectangulos) y la linea de medio campo mediante nodos SKShapeNode
+        let porteriaLado = SKShapeNode(rect: CGRect(x: self.minAnchuraUIScreenEnValorFrame - 20, y: -self.convertHeight(h: self.altura/4), width: self.convertWidth(w: self.anchura/4), height: self.convertHeight(h: self.altura/2)))
+        if self.connectService?.isBrowser ?? false {
+            porteriaLado.strokeColor = UIColor.blue
+        }else {
+            porteriaLado.strokeColor = UIColor.red
+        }
+        porteriaLado.glowWidth = 4.0  * self.ajuste
+        self.addChild(porteriaLado)
+        
+        // MARK: - COSOS NEGROS
+        //let rectanguloNegroSuperior = CGRect(x: self.minAnchuraUIScreenEnValorFrame, y: self.convertHeight(h:UIScreen.main.bounds.height), width: self.convertWidth(w: self.anchura), height: self.convertHeight(h:UIScreen.main.bounds.height - self.altura))
+        let rectanguloNegroSuperior = SKShapeNode(rectOf: CGSize(width: self.frame.width*2, height: self.convertHeight(h:UIScreen.main.bounds.height - self.altura)))
+        rectanguloNegroSuperior.fillColor = .darkGray
+        rectanguloNegroSuperior.strokeColor = .darkGray
+        rectanguloNegroSuperior.position = CGPoint(x:  self.frame.minX,y: self.convertHeight(h: UIScreen.main.bounds.height/2))
+        self.addChild(rectanguloNegroSuperior)
+        
+        let rectanguloNegroInferior = SKShapeNode(rectOf: CGSize(width: self.frame.width*2, height: self.convertHeight(h:UIScreen.main.bounds.height - self.altura)))
+        rectanguloNegroInferior.fillColor = .darkGray
+        rectanguloNegroInferior.strokeColor = .darkGray
+        rectanguloNegroInferior.position = CGPoint(x:  self.frame.minX,y: -self.convertHeight(h: UIScreen.main.bounds.height/2))
+        self.addChild(rectanguloNegroInferior)
+        
+        if self.anchura != UIScreen.main.bounds.width {
+            let rectanguloNegroLateral = SKShapeNode(rectOf: CGSize(width: self.convertWidth(w: UIScreen.main.bounds.width), height: self.convertHeight(h:UIScreen.main.bounds.height*2)))
+            rectanguloNegroLateral.fillColor = .darkGray
+            rectanguloNegroLateral.strokeColor = .darkGray
+            rectanguloNegroLateral.position = CGPoint(x: -self.convertWidth(w: self.anchura),y: -self.convertHeight(h: UIScreen.main.bounds.height/2))
+            self.addChild(rectanguloNegroLateral)
+            //UIColor(red: 0, green: 0, blue: 0, alpha: 1)
+        }
+        
+        
+        // MARK: - LINEA SUPERIOR: (LIMITE SUPERIOR PORTERIA - LIMITE SUPERIOR IZUIERDO - LIMITE SUPERIOR DERECHO)
+
         // Definimos las referencias de las esquinas de la escena
         
-        let goalTopLeft = CGPoint(x: self.frame.minX, y: self.convertHeight(h:self.altura/4))
-        let topLeft = CGPoint(x: self.frame.minX,  y: self.convertHeight(h: self.altura/2))
+        let goalTopLeft = CGPoint(x: self.minAnchuraUIScreenEnValorFrame, y: self.convertHeight(h:self.altura/4))
+        let topLeft = CGPoint(x: self.minAnchuraUIScreenEnValorFrame,  y: self.convertHeight(h: self.altura/2))
         let topMiddle = CGPoint(x: self.frame.maxX, y: self.convertHeight(h:self.altura/2))
 
         // Definimos el path lateral top irquierdo
@@ -113,17 +171,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }else{
             drawableTopLeft.strokeColor = UIColor.red
         }
-        drawableTopLeft.lineWidth = 10
+        drawableTopLeft.lineWidth = 10 * self.ajuste
         self.addChild(drawableTopLeft)
 
         // Definimos el cuerpo top irquierdo
         let bodyTopLeft = SKPhysicsBody(edgeChainFrom: pathTopLeft)
         
-        // MARK: - Bottom Left
+        // MARK: - LINEA INFERIOR: (LIMITE INFERIOR PORTERIA - LIMITE INFERIOR IZUIERDO - LIMITE INFERIOR DERECHO)
         // Definimos las referencias de las esquinas de la escena
         
-        let goalBottomLeft = CGPoint(x: self.frame.minX, y: self.convertHeight(h:-self.altura/4))
-        let bottomLeft = CGPoint(x: self.frame.minX,  y: self.convertHeight(h:-self.altura/2))
+        let goalBottomLeft = CGPoint(x: self.minAnchuraUIScreenEnValorFrame, y: self.convertHeight(h:-self.altura/4))
+        let bottomLeft = CGPoint(x: self.minAnchuraUIScreenEnValorFrame,  y: self.convertHeight(h:-self.altura/2))
         let bottomMiddle = CGPoint(x: self.frame.maxX, y: self.convertHeight(h:-self.altura/2))
 
         // Definimos el path lateral top irquierdo
@@ -136,7 +194,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }else{
             drawableBottomLeft.strokeColor = UIColor.red
         }
-        drawableBottomLeft.lineWidth = 10
+        drawableBottomLeft.lineWidth = 10 * self.ajuste
         self.addChild(drawableBottomLeft)
 
         // Definimos el cuerpo top irquierdo
@@ -147,36 +205,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //tenemos que indicar que no sea dinamico para que no le afecten fuerzas como la gravedad y se quede fijo en la escena, sino caería y no tendríamos límites
         self.physicsBody?.isDynamic = false
         
-        // MARK: - Pinta Porterías
-        // TODO [C12] Dibuja las dos porterias (rectangulos) y la linea de medio campo mediante nodos SKShapeNode
-        let porteriaLado = SKShapeNode(rect: CGRect(x: self.convertWidth(w: -self.anchura), y: -self.convertHeight(h: self.altura/4), width: self.convertWidth(w: self.anchura*3/4), height: self.convertHeight(h: self.altura/2)))
-        if self.connectService?.isBrowser ?? false {
-            porteriaLado.strokeColor = UIColor.blue
-        }else {
-            porteriaLado.strokeColor = UIColor.red
-        }
-        porteriaLado.glowWidth = 4.0
-        self.addChild(porteriaLado)
+        // MARK: - Centro del campo
         
-        let Circle = SKShapeNode(circleOfRadius: 150 ) // Size of Circle
+        let Circle = SKShapeNode(circleOfRadius: 150 * self.ajuste) // Size of Circle
         Circle.position = CGPoint(x: self.frame.maxX, y: self.frame.midY)  //Middle of Screen
         Circle.strokeColor = .black
-        Circle.glowWidth = 2.0
+        Circle.glowWidth = 2.0 * self.ajuste
         self.addChild(Circle)
         
-        let puntoSuperiorLinea = CGPoint(x: self.frame.maxX, y: self.frame.maxY)
-        let puntoInferiorLinea = CGPoint(x: self.frame.maxX, y: self.frame.minY)
+        let puntoSuperiorLinea = CGPoint(x: self.frame.maxX, y: self.convertHeight(h:self.altura/2))
+        let puntoInferiorLinea = CGPoint(x: self.frame.maxX, y: self.convertHeight(h:-self.altura/2))
         let lineaPath = CGMutablePath()
         lineaPath.addLines(between: [puntoSuperiorLinea, puntoInferiorLinea])
         let lineaMedio = SKShapeNode(path: lineaPath)
         lineaMedio.strokeColor = .black
-        lineaMedio.lineWidth = 10
+        lineaMedio.lineWidth = 10 * self.ajuste
         self.addChild(lineaMedio)
         
         // MARK: - Límites físicos
         // TODO [C13] Define limites fisicos para cada uno de los dos campos de juego, y asocialos a nodos de la escena.
-        
-        let rectanguloInferior = CGRect(x: self.frame.minX, y: self.frame.maxY, width: self.frame.width, height: self.frame.height)
+        let rectanguloInferior = CGRect(x: self.minAnchuraUIScreenEnValorFrame, y: -self.convertHeight(h:self.altura/2), width: self.convertWidth(w: self.anchura), height: self.convertHeight(h:self.altura))
         let campoInferiorBody = SKPhysicsBody(edgeLoopFrom: rectanguloInferior)
         porteriaLado.physicsBody = campoInferiorBody
         
@@ -194,7 +242,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if let puck = self.puck{
             // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
-            if ((puck.position.x) < self.frame.minX){
+            if ((puck.position.x) < self.minAnchuraUIScreenEnValorFrame){
             //  - Incrementa la puntuacion del jugador correspondiente
 //                self.scoreBottom = self.scoreBottom + 1
 
@@ -260,14 +308,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.puck?.physicsBody?.angularVelocity = 0
         self.puck?.physicsBody?.velocity = .zero
         //  - Situa el disco "puck" en pos
-        self.puck?.position = pos
+
+        self.puck!.position = CGPoint(x: minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/2), y: self.frame.midY)
         //  - Escalalo a 4.0
         self.puck?.physicsBody?.isDynamic = false
         self.puck?.setScale(4)
         //  - Pon la velocidad lineal y angular de su cuerpo físico a 0
         
         //  - Ejecuta una acción que lo escale a 1.0 durante 0.25s
-        let scaleSmall = SKAction.scale(to:1, duration: 0.25)
+        let scaleSmall = SKAction.scale(to: 1 * self.ajuste, duration: 0.25)
         let dynamicTrueAction = SKAction.run {
             self.puck?.physicsBody?.isDynamic = true
          }
@@ -391,14 +440,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func convertWidth(w : CGFloat) -> CGFloat{
         return (self.frame.width * w) / UIScreen.main.bounds.width
     }
+    
+    func correctXPosition(p : CGFloat) -> CGFloat{
+        return self.anchura * p / self.frame.width
+    }
 
 }
 
 extension GameScene : GameControl {
     func didWin(_ win: String) {
+        
+        self.puck?.removeFromParent()
     
         self.scoreboard?.zPosition = 2
         self.labelWins = childNode(withName: "//label_wins") as? SKLabelNode
+        self.labelWins?.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura*3/4)
+        self.labelWins?.fontSize = self.labelWins!.fontSize * self.ajuste
         self.labelWins?.fontColor = self.color
         self.labelWins?.text = "Has perdido"
         self.labelWins?.isHidden = false
@@ -428,6 +485,8 @@ extension GameScene : GameControl {
             
             self.scoreboard?.zPosition = 2
             self.labelWins = childNode(withName: "//label_wins") as? SKLabelNode
+            self.labelWins?.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura*3/4)
+            self.labelWins?.fontSize = self.labelWins!.fontSize * self.ajuste
             self.labelWins?.fontColor = self.color
             self.labelWins?.text = "Has ganado"
             self.labelWins?.isHidden = false
