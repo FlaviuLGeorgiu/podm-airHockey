@@ -201,6 +201,8 @@ extension ListScene : MultipeerConnectServiceDelegate {
                 var anchura = UIScreen.main.bounds.width
                 if jsonArray["height"]! <= altura{
                     altura = jsonArray["height"]!
+                }
+                if jsonArray["width"]! <= anchura{
                     anchura = jsonArray["width"]!
                 }
                 self.appDelegate.altura = altura
