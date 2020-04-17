@@ -34,6 +34,8 @@ class MultipeerConnectService : NSObject {
     private let serviceAdvertiser : MCNearbyServiceAdvertiser
     private let serviceBrowser : MCNearbyServiceBrowser
     
+    var alert : UIAlertController?
+    
     
     public var peerList = [MCPeerID]()
     
@@ -99,19 +101,22 @@ class MultipeerConnectService : NSObject {
         serviceBrowser.invitePeer(conectingPeer, to: self.session, withContext: nil, timeout: 10)
         
     }
-    
+
 }
 
 extension MultipeerConnectService : MCNearbyServiceAdvertiserDelegate {
-    
+
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
+        
         NSLog("%@", "didNotStartAdvertisingPeer: \(error)")
     }
     
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         print ("didReceiveInvitationFromPeer \(peerID)")
         
-        AppAlert(title: "Se quiere conectar un usuario", message: peerID.displayName, preferredStyle: .alert)
+        
+        
+        self.alert = AppAlert(title: "Se quiere conectar un usuario", message: peerID.displayName, preferredStyle: .alert)
         .addAction(title: "NO", style: .cancel) { _ in
             (self.appDelegate.gameScene as! ListScene).conectando = false
             invitationHandler(false, self.session)
@@ -123,9 +128,16 @@ extension MultipeerConnectService : MCNearbyServiceAdvertiserDelegate {
             invitationHandler(true, self.session)
         }
         .build()
-        .showAlert(animated: true)
-   
+        alert!.showAlert(animated: true)
+        Timer.scheduledTimer(timeInterval: 10.0, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: false)
+        
     }
+    
+    @objc func fireTimer() {
+        self.alert!.dismiss(animated: true, completion: nil)
+    }
+    
+    
     
     
 }
@@ -219,6 +231,7 @@ extension MultipeerConnectService : MCSessionDelegate {
     
     func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {
         NSLog("%@", "didFinishReceivingResourceWithName")
+    
     }
     
 }
