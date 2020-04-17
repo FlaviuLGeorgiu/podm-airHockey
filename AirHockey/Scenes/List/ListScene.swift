@@ -192,6 +192,13 @@ private extension ListScene {
 // MARK: -Load peers data
 
 extension ListScene : MultipeerConnectServiceDelegate {
+    func notConnected() {
+        OperationQueue.main.addOperation {
+            self.removeLoadingGif()
+            self.conectando = false
+        }
+    }
+    
     func didReciveSize(didReceive text: String) {
         let data = text.data(using: .utf8)!
         do {

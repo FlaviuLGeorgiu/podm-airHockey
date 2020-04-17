@@ -20,6 +20,7 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
         //tipo de animacion que se aplica al cambio de escena
         if(self.textInput?.text != ""){
             appDelegate.myName = self.textInput?.text
+            UserDefaults.standard.set(self.textInput?.text, forKey: "myName")
             textInput?.removeFromSuperview()
             view?.gestureRecognizers?.removeAll()
             let reveal = SKTransition.reveal(with: .down,
@@ -71,7 +72,13 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
         self.textInput?.layer.cornerRadius = 10.0
         self.textInput?.frame.size.width = width/1.2
         self.textInput?.frame = CGRect(x: width/2 - (self.textInput?.frame.size.width)!/2,y: height/2, width: width/1.2, height: 50)
-        self.textInput?.text = "Player-" + String(Int.random(in: 1000 ..< 9999))
+        
+        if let name = UserDefaults.standard.string(forKey: "myName") {
+            self.textInput?.text = name
+        }else{
+            self.textInput?.text = "Player-" + String(Int.random(in: 1000 ..< 9999))
+        }
+        
         self.view!.addSubview(textInput!)
         
         self.playButton?.position = CGPoint(x: 0, y: -self.frame.height/10 * 1.2 )
