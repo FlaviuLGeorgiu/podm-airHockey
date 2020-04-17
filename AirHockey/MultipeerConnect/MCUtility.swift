@@ -169,7 +169,7 @@ extension MultipeerConnectService : MCSessionDelegate {
             do {
                 if let json = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
                 {
-                    if let _ = json["x"]{
+                    if let _ = json["dx"]{
                         self.gameDelegate?.puckService(didReceive: str)
                     }else if let _ = json["height"]{
                         self.delegate?.didReciveSize(didReceive: str)

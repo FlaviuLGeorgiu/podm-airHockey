@@ -198,10 +198,13 @@ extension ListScene : MultipeerConnectServiceDelegate {
             if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
             {
                 var altura = UIScreen.main.bounds.height
+                var anchura = UIScreen.main.bounds.width
                 if jsonArray["height"]! <= altura{
                     altura = jsonArray["height"]!
+                    anchura = jsonArray["width"]!
                 }
                 self.appDelegate.altura = altura
+                self.appDelegate.anchura = anchura
                 removeLoadingGif()
                 loadGameScene()
                 
@@ -256,7 +259,8 @@ extension ListScene : MultipeerConnectServiceDelegate {
 //        removeLoadingGif()
 //        loadGameScene()
         let data: [String: CGFloat] = [
-            "height" : UIScreen.main.bounds.height
+            "height" : UIScreen.main.bounds.height,
+            "width" : UIScreen.main.bounds.width
         ]
         let jsonString = stringify(json: data, prettyPrinted: true)
         self.connectService.send(text: jsonString)
