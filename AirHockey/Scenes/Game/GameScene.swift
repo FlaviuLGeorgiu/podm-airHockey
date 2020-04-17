@@ -49,15 +49,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: Mapa de asociacion de touches con palas
     private var activeTouches : [UITouch : SKNode] = [:]
     
-    
+    private var diffHeight : CGFloat = 0.0
+    private var altura : CGFloat = 0.0
+    private var anchura : CGFloat = 0.0
     // MARK: - Inicializacion de la escena
     
     override func didMove(to view: SKView) {
-        
+    
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         self.session = appDelegate.gameSession
         self.connectService = appDelegate.connectService
         self.connectService?.gameDelegate = self
+        
+        self.diffHeight = UIScreen.main.bounds.height - appDelegate.altura!
+        self.altura = appDelegate.altura!
+        self.anchura = appDelegate.anchura!
+        print(UIScreen.main.bounds.height)
+        print(appDelegate.altura)
+        print(self.frame.height)
         
         // TODO [B04] Obten las referencias a los nodos de la escena
         //self.paddleTop = childNode(withName: "//paddleTop") as? SKSpriteNode
@@ -89,13 +98,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         
         // TODO [C11] Define los limites del escenario dejando los huecos de las porterias. Puedes utilizar dos cuerpos que definan cada uno de los laterales del escenario a partir de un path, y combinarlos en un unico cuerpo compuesto.
-        let goalWidthLado = self.frame.height / 2
+        let goalWidthLado = self.altura / 2
         // MARK: - Top Left
         // Definimos las referencias de las esquinas de la escena
         
-        let goalTopLeft = CGPoint(x: self.frame.minX, y: self.frame.maxY-goalWidthLado/2)
-        let topLeft = CGPoint(x: self.frame.minX,  y: self.frame.maxY)
-        let topMiddle = CGPoint(x: self.frame.maxX, y: self.frame.maxY)
+        let goalTopLeft = CGPoint(x: self.frame.minX, y: self.convertHeight(h:self.altura/4))
+        let topLeft = CGPoint(x: self.frame.minX,  y: self.convertHeight(h: self.altura/2))
+        let topMiddle = CGPoint(x: self.frame.maxX, y: self.convertHeight(h:self.altura/2))
 
         // Definimos el path lateral top irquierdo
         let pathTopLeft = CGMutablePath()
@@ -116,9 +125,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // MARK: - Bottom Left
         // Definimos las referencias de las esquinas de la escena
         
-        let goalBottomLeft = CGPoint(x: self.frame.minX, y: self.frame.minY+goalWidthLado/2)
-        let bottomLeft = CGPoint(x: self.frame.minX,  y: self.frame.minY)
-        let bottomMiddle = CGPoint(x: self.frame.maxX, y: self.frame.minY)
+        let goalBottomLeft = CGPoint(x: self.frame.minX, y: self.convertHeight(h:-self.altura/4))
+        let bottomLeft = CGPoint(x: self.frame.minX,  y: self.convertHeight(h:-self.altura/2))
+        let bottomMiddle = CGPoint(x: self.frame.maxX, y: self.convertHeight(h:-self.altura/2))
 
         // Definimos el path lateral top irquierdo
         let pathBottomLeft = CGMutablePath()
@@ -143,7 +152,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // MARK: - Pinta Porterías
         // TODO [C12] Dibuja las dos porterias (rectangulos) y la linea de medio campo mediante nodos SKShapeNode
-        let porteriaLado = SKShapeNode(rect: CGRect(x: self.frame.minX-goalWidthLado/1.5, y: -goalWidthLado/2, width: goalWidthLado, height: goalWidthLado))
+        let porteriaLado = SKShapeNode(rect: CGRect(x: self.convertWidth(w: -self.anchura), y: -self.convertHeight(h: self.altura/4), width: self.convertWidth(w: self.anchura*3/4), height: self.convertHeight(h: self.altura/2)))
         if self.connectService?.isBrowser ?? false {
             porteriaLado.strokeColor = UIColor.blue
         }else {
@@ -390,6 +399,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }else if (contact.bodyB.node?.name == "puck"){
             contact.bodyB.node?.run(self.actionSoundHit)
         }
+    }
+    
+    func convertHeight(h : CGFloat) -> CGFloat{
+        return (self.frame.height * h) / UIScreen.main.bounds.height
+    }
+    
+    func convertWidth(w : CGFloat) -> CGFloat{
+        return (self.frame.width * w) / UIScreen.main.bounds.width
     }
 
 }

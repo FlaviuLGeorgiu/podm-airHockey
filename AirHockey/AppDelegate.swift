@@ -18,6 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var gameScene : SKScene?
     var myName : String?
     var connectService : MultipeerConnectService?
+    var altura : CGFloat?
+    var anchura : CGFloat?
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
