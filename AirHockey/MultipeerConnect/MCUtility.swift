@@ -9,6 +9,14 @@
 import Foundation
 import MultipeerConnectivity
 
+enum Scenes : Int {
+    case MainMenu = 0
+    case ListScene = 1
+    case GameScene = 2
+    case None = 3
+}
+
+
 protocol MultipeerConnectServiceDelegate {
     func connectedDevicesChanged(manager : MultipeerConnectService, connectedDevices: [String])
     func didReciveSize(didReceive text: String)
@@ -20,6 +28,7 @@ protocol GameControl {
     func puckService(didReceive text: String)
     func didGoal(_ goal: String)
     func didWin(_ win: String)
+    func disconnect()
 }
 
 class MultipeerConnectService : NSObject {
@@ -183,7 +192,13 @@ extension MultipeerConnectService : MCSessionDelegate {
                        session.connectedPeers.map{$0.displayName})
             break
         case .notConnected:
-             self.delegate?.notConnected()
+            if self.appDelegate.gameScene?.name == "ListScene"{
+                print("Quitando GIF")
+                self.delegate?.notConnected()
+            }else{
+                print("Cerrando partida")
+                self.gameDelegate?.disconnect()
+            }
             break
         default:
             break

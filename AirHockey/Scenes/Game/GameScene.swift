@@ -59,6 +59,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
     
+        self.appDelegate.gameScene = self
         
         self.session = appDelegate.gameSession
         self.connectService = appDelegate.connectService
@@ -448,6 +449,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 }
 
 extension GameScene : GameControl {
+    
+    func disconnect() {
+        OperationQueue.main.addOperation {
+            self.goToTitle()
+        }
+    }
+    
     func didWin(_ win: String) {
         
         self.puck?.removeFromParent()
