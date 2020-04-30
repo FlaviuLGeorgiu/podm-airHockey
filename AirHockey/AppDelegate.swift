@@ -20,6 +20,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var connectService : MultipeerConnectService?
     var altura : CGFloat?
     var anchura : CGFloat?
+    
+    var maxScore = 2
+    var powerUps = true
+    var myColor =  #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1)
+    var startWithPuck = false
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
