@@ -276,8 +276,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
         self.powerUp?.size = CGSize(width: (self.paddle?.size.width)! * self.ajuste, height: (self.paddle?.size.height)! * self.ajuste)
         
-        self.powerUp!.position.x = CGFloat.random(in: self.convertWidth(w: self.anchura/3)..<self.convertWidth(w: self.anchura/3)+2)
-        self.powerUp!.position.y = CGFloat.random(in: self.convertHeight(h: self.altura/4) / 2..<self.convertHeight(h: self.altura/4))
+        self.powerUp!.position.x = CGFloat.random(in: self.anchura/3..<self.anchura/2)
+        self.powerUp!.position.y = CGFloat.random(in: (-self.altura/2)-50..<(self.altura/2)+50)
     
         
          let power = Int.random(in: 1..<4)
@@ -299,7 +299,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
          }
         
         self.powerUp?.physicsBody = SKPhysicsBody(circleOfRadius: ((self.paddle?.size.width)! / 2) * self.ajuste)
-        
+        self.powerUp?.zRotation = -1.5708 //90 grados en radianes
         self.powerUp?.physicsBody?.isDynamic = false
         self.powerUp?.physicsBody?.categoryBitMask = self.powerUpsCategoryMask
         self.addChild(self.powerUp!)
