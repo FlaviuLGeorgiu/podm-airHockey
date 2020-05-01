@@ -41,8 +41,7 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
     }
     
     override func didMove(to view: SKView) {
-        print("Menu")
-        print(self.frame)
+        
         self.playButton = childNode(withName: "//play_button") as? ButtonSpriteNode
         self.airHockey = childNode(withName: "//airHockey") as? SKLabelNode
         self.forTwo = childNode(withName: "//forTwo") as? SKLabelNode
@@ -51,7 +50,7 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
         
         self.hideKeyboard()
         
-        // MARK: ODIO ESTO.....
+       
         let width = UIScreen.main.bounds.width//self.rootView.frame.size.width
         let height = UIScreen.main.bounds.height
         
