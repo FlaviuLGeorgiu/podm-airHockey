@@ -41,6 +41,8 @@ class ConfigScene: SKScene, ButtonSpriteNodeDelegate{
         self.puckLabel = childNode(withName: "//puckLabel") as? SKLabelNode
         self.colorsLabel = childNode(withName: "//colorsLabel") as? SKLabelNode
         
+        self.scoreValue = self.appDelegate.maxScore
+        
         self.playButton?.delegate = self
         self.plusButton?.delegate = self
         self.minusButton?.delegate = self
@@ -65,11 +67,11 @@ class ConfigScene: SKScene, ButtonSpriteNodeDelegate{
         self.view!.addSubview(self.score!)
         
         let powerUpsSwitch = UISwitch(frame:CGRect(x: width/2, y: self.powerUpsLabel!.position.y, width: 0, height: 0))
-        powerUpsSwitch.isOn = true
+        powerUpsSwitch.isOn = self.appDelegate.powerUps
         powerUpsSwitch.transform = CGAffineTransform(scaleX: 1.7, y: 1.7)
         powerUpsSwitch.onTintColor = self.darkBlue
         powerUpsSwitch.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.powerUpsLabel!.position.y) + powerUpsSwitch.frame.size.height)
-        powerUpsSwitch.setOn(true, animated: true)
+        powerUpsSwitch.setOn(self.appDelegate.powerUps, animated: true)
         powerUpsSwitch.addTarget(self, action: #selector(switchValueDidChange(_:)), for: .valueChanged)
         self.view!.addSubview(powerUpsSwitch)
         
@@ -77,7 +79,7 @@ class ConfigScene: SKScene, ButtonSpriteNodeDelegate{
         whoStartsSegment.frame.size.width = self.convertWidth(w: self.puckLabel!.frame.size.width)
         whoStartsSegment.frame.size.height = whoStartsSegment.frame.size.height*1.8
         whoStartsSegment.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.puckLabel!.position.y) + whoStartsSegment.frame.size.height)
-        whoStartsSegment.selectedSegmentIndex = 0
+        whoStartsSegment.selectedSegmentIndex = self.appDelegate.startWithPuck ? 0 : 1
         whoStartsSegment.addTarget(self, action: #selector(ConfigScene.indexChanged(_:)), for: .valueChanged)
         whoStartsSegment.layer.cornerRadius = 5.0
         whoStartsSegment.backgroundColor = self.darkBlue
@@ -90,7 +92,7 @@ class ConfigScene: SKScene, ButtonSpriteNodeDelegate{
         whatColorSegment.frame.size.width = self.convertWidth(w: self.puckLabel!.frame.size.width)
         whatColorSegment.frame.size.height = whatColorSegment.frame.size.height*1.8
         whatColorSegment.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.colorsLabel!.position.y) + whatColorSegment.frame.size.height)
-        whatColorSegment.selectedSegmentIndex = 0
+        whatColorSegment.selectedSegmentIndex = self.appDelegate.myColor == #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1) ? 0 : 1
         whatColorSegment.addTarget(self, action: #selector(ConfigScene.indexChangedColor(_:)), for: .valueChanged)
         whatColorSegment.layer.cornerRadius = 5.0
         whatColorSegment.setTitleTextAttributes(whiteAttributes as [NSAttributedString.Key : Any], for: .selected)
