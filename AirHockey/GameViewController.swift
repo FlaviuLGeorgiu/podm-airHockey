@@ -16,6 +16,7 @@ class GameViewController: UIViewController {
         case menu = "MenuScene"
         case game = "GameScene"
         case list = "ListScene"
+        case config = "ConfigScene"
     }
 
     override func viewDidLoad() {

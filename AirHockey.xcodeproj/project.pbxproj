@@ -35,6 +35,8 @@
 		C76FDC2B2434ED1A008E9306 /* ListScene+VerticalScrolling.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76FDC272434ED1A008E9306 /* ListScene+VerticalScrolling.swift */; };
 		C76FDC2F2434FFB7008E9306 /* MenuScene+Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76FDC2E2434FFB7008E9306 /* MenuScene+Keyboard.swift */; };
 		C7A3A941244610DA009717D0 /* ButtonLabelSpriteNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A3A940244610DA009717D0 /* ButtonLabelSpriteNode.swift */; };
+		C7EF5FC3245B57DA00AA49A5 /* ConfigScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = C7EF5FC2245B57DA00AA49A5 /* ConfigScene.sks */; };
+		C7EF5FC5245B580D00AA49A5 /* ConfigScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EF5FC4245B580D00AA49A5 /* ConfigScene.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,6 +70,8 @@
 		C76FDC272434ED1A008E9306 /* ListScene+VerticalScrolling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ListScene+VerticalScrolling.swift"; sourceTree = "<group>"; };
 		C76FDC2E2434FFB7008E9306 /* MenuScene+Keyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MenuScene+Keyboard.swift"; sourceTree = "<group>"; };
 		C7A3A940244610DA009717D0 /* ButtonLabelSpriteNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonLabelSpriteNode.swift; sourceTree = "<group>"; };
+		C7EF5FC2245B57DA00AA49A5 /* ConfigScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = ConfigScene.sks; sourceTree = "<group>"; };
+		C7EF5FC4245B580D00AA49A5 /* ConfigScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigScene.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +144,7 @@
 		85ED32F923BCFA7B00F95740 /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				C7EF5FC1245B577400AA49A5 /* Config */,
 				C76FDC212434EABB008E9306 /* List */,
 				C734A02223F5CA0400B207F2 /* Menu */,
 				85ED32FB23BCFA9200F95740 /* Game */,
@@ -179,6 +184,15 @@
 				C7A3A940244610DA009717D0 /* ButtonLabelSpriteNode.swift */,
 			);
 			path = List;
+			sourceTree = "<group>";
+		};
+		C7EF5FC1245B577400AA49A5 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				C7EF5FC2245B57DA00AA49A5 /* ConfigScene.sks */,
+				C7EF5FC4245B580D00AA49A5 /* ConfigScene.swift */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -240,6 +254,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				852EB46B23A66B9400EC712C /* font-title.ttf in Resources */,
+				C7EF5FC3245B57DA00AA49A5 /* ConfigScene.sks in Resources */,
 				852EB46823A6657600EC712C /* hit.wav in Resources */,
 				85CAC68F22F4658F00153368 /* Main.storyboard in Resources */,
 				85CAC68622F4658F00153368 /* GameScene.sks in Resources */,
@@ -272,6 +287,7 @@
 				C76FDC232434EADF008E9306 /* SwiftySKScrollView.swift in Sources */,
 				C76FDC292434ED1A008E9306 /* ListScene.swift in Sources */,
 				C76FDC282434ED1A008E9306 /* ListScene+HorizontalScrolling.swift in Sources */,
+				C7EF5FC5245B580D00AA49A5 /* ConfigScene.swift in Sources */,
 				C734A02623F5CAF300B207F2 /* MenuScene.swift in Sources */,
 				85CAC68C22F4658F00153368 /* GameViewController.swift in Sources */,
 				C734A02A23F5DB8E00B207F2 /* ButtonSpriteNode.swift in Sources */,
