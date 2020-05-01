@@ -27,6 +27,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var puck : SKSpriteNode?
     private var scoreboard : SKLabelNode?
     private var labelWins : SKLabelNode?
+    
+    private var powerUpTop : SKSpriteNode?
+    private var powerUpBottom : SKSpriteNode?
 
     // MARK: Marcadores de los jugadores
     private var score : Int = 0
@@ -37,10 +40,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var color = #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1)
 
     // MARK: Categorias de los objetos fisicos
-    private let paddleCategoryMask : UInt32 = 0b0001
-    private let puckCategoryMask : UInt32 = 0b0010
-    private let limitsCategoryMask : UInt32 = 0b0100
-    private let midfieldCategoryMask : UInt32 = 0b1000
+    private let paddleCategoryMask : UInt32 = 0b00001
+    private let puckCategoryMask : UInt32 = 0b00010
+    private let limitsCategoryMask : UInt32 = 0b00100
+    private let midfieldCategoryMask : UInt32 = 0b01000
+    private let powerUpsCategoryMask : UInt32 = 0b10000
 
     // MARK: Efectos de sonido
     // TODO [D02] Crear acciones para reproducir "goal.wav" y "hit.wav"
@@ -89,6 +93,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.paddle!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
         self.puck!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/2)
+        
+        self.powerUpTop = childNode(withName: "//powerUpTop") as? SKSpriteNode
+        self.powerUpTop?.scale(to: CGSize(width: (self.powerUpTop?.size.width)! * self.ajuste, height: (self.powerUpTop?.size.height)! * self.ajuste))
+        self.powerUpTop!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
+        
+        self.powerUpBottom = childNode(withName: "//powerUpBottom") as? SKSpriteNode
+        self.powerUpBottom?.scale(to: CGSize(width: (self.powerUpBottom?.size.width)! * self.ajuste, height: (self.powerUpBottom?.size.height)! * self.ajuste))
+        self.powerUpBottom!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
         
         self.scoreboard = childNode(withName: "//score_bottom") as? SKLabelNode
         self.scoreboard?.fontSize = self.scoreboard!.fontSize * self.ajuste
@@ -427,7 +439,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // TODO [D06] Define el método didBegin(:). En caso de que alguno de los cuerpos que intervienen en el contacto sea el disco (' puck'), reproduce el audio `actionSoundHit`
     func didBegin(_ contact: SKPhysicsContact) {
-        if (contact.bodyA.node?.name == "puck"){
+        
+    
+        if (contact.bodyA.node?.name == "powerUpTop"
+            && contact.bodyB.node?.name == "puck"){
+//            contact.bodyA.node?.run(self.actionSoundHit)
+        }else if (contact.bodyB.node?.name == "powerUpTop"
+        && contact.bodyA.node?.name == "puck"){
+//            contact.bodyB.node?.run(self.actionSoundHit)
+        }else if (contact.bodyA.node?.name == "powerUpBottom"
+            && contact.bodyB.node?.name == "puck"){
+//            contact.bodyA.node?.run(self.actionSoundHit)
+        }else if (contact.bodyB.node?.name == "powerUpBottom"
+        && contact.bodyA.node?.name == "puck"){
+//            contact.bodyB.node?.run(self.actionSoundHit)
+        }else if (contact.bodyA.node?.name == "puck"){
             contact.bodyA.node?.run(self.actionSoundHit)
         }else if (contact.bodyB.node?.name == "puck"){
             contact.bodyB.node?.run(self.actionSoundHit)
