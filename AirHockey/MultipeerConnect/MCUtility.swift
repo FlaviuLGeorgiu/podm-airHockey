@@ -29,6 +29,7 @@ protocol GameControl {
     func didGoal(_ goal: String)
     func didWin(_ win: String)
     func disconnect()
+    func setPowerUp(didReceive text: String)
 }
 
 class MultipeerConnectService : NSObject {
@@ -223,6 +224,8 @@ extension MultipeerConnectService : MCSessionDelegate {
                         self.gameDelegate?.puckService(didReceive: str)
                     }else if let _ = json["height"]{
                         self.delegate?.didReciveSize(didReceive: str)
+                    }else if let _ = json["powerup"]{
+                        self.gameDelegate?.setPowerUp(didReceive: str)
                     }
                     
                 } else {

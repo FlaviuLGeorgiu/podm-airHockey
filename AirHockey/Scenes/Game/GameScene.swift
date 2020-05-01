@@ -10,15 +10,20 @@ import SpriteKit
 import GameplayKit
 import MultipeerConnectivity
 
+enum PowerUpsSpeed {
+    case normal, fast, slow
+}
+
 // TODO [D04] Implementa el protocolo `SKPhysicsContactDelegate`
 class GameScene: SKScene, SKPhysicsContactDelegate {
+    
+    var contadorPowerUps = 0
+    
     
     // MARK: - Session
     var session : MCSession? = nil
     var connectService : MultipeerConnectService?
-    
     var estoyEnCampo = true
-    
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     // MARK: - Referencias a nodos de la escena
@@ -35,6 +40,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var score : Int = 0
     //private var scoreTop : Int = 0
     private let maxScore = 2
+    
+    // MARK: Powerups
+    private var powerUpActivated : PowerUpsSpeed = .fast
+    private var doublePoints : Bool = false;
 
     // MARK: Colores de los jugadores
     private var color = #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1)
@@ -69,6 +78,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.connectService = appDelegate.connectService
         self.connectService?.gameDelegate = self
         
+        
         self.diffHeight = UIScreen.main.bounds.height - appDelegate.altura!
         self.altura = appDelegate.altura!
         self.anchura = appDelegate.anchura!
@@ -97,10 +107,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.powerUpTop = childNode(withName: "//powerUpTop") as? SKSpriteNode
         self.powerUpTop?.scale(to: CGSize(width: (self.powerUpTop?.size.width)! * self.ajuste, height: (self.powerUpTop?.size.height)! * self.ajuste))
         self.powerUpTop!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
+        self.powerUpTop?.isHidden = true
         
         self.powerUpBottom = childNode(withName: "//powerUpBottom") as? SKSpriteNode
         self.powerUpBottom?.scale(to: CGSize(width: (self.powerUpBottom?.size.width)! * self.ajuste, height: (self.powerUpBottom?.size.height)! * self.ajuste))
         self.powerUpBottom!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
+        self.powerUpBottom?.isHidden = true
+
         
         self.scoreboard = childNode(withName: "//score_bottom") as? SKLabelNode
         self.scoreboard?.fontSize = self.scoreboard!.fontSize * self.ajuste
@@ -248,13 +261,45 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
     }
+    
+    func crearPowerUp() {
+        let poner = Int.random(in: 1..<3)
+        if poner == 1 {
+            self.powerUpTop?.isHidden = false
+            self.powerUpBottom?.isHidden = true
+            
+            self.powerUpTop?.texture = SKTexture(imageNamed: "fast")
+            
+//            let data: [String: CGFloat] = [
+//                "powerup" : 1.0
+//             ]
+//             let jsonString = stringify(json: data, prettyPrinted: true)
+//             self.connectService?.send(text: jsonString)
+            
+        }else{
+            self.powerUpTop?.isHidden = true
+            self.powerUpBottom?.isHidden = false
+        }
+        
+        
+    }
+    
 
     // MARK: - Metodos del ciclo del juego
     
     override func update(_ currentTime: TimeInterval) {
         
+        if self.connectService!.isBrowser {
+            if self.contadorPowerUps == 1000 {
+                crearPowerUp()
+                self.contadorPowerUps = 0
+            }else{
+                self.contadorPowerUps += 1
+            }
+        }
+        
         if let puck = self.puck{
-            // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
+                        // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
             if ((puck.position.x) < self.minAnchuraUIScreenEnValorFrame){
             //  - Incrementa la puntuacion del jugador correspondiente
 //                self.scoreBottom = self.scoreBottom + 1
@@ -288,7 +333,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
         }
-        
         
     }
     
@@ -443,20 +487,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
         if (contact.bodyA.node?.name == "powerUpTop"
             && contact.bodyB.node?.name == "puck"){
-//            contact.bodyA.node?.run(self.actionSoundHit)
+            print("Tocado top")
+            contact.bodyA.node!.isHidden = true
+            
         }else if (contact.bodyB.node?.name == "powerUpTop"
         && contact.bodyA.node?.name == "puck"){
-//            contact.bodyB.node?.run(self.actionSoundHit)
+            print("Tocado top")
+            contact.bodyB.node!.isHidden = true
         }else if (contact.bodyA.node?.name == "powerUpBottom"
             && contact.bodyB.node?.name == "puck"){
-//            contact.bodyA.node?.run(self.actionSoundHit)
+            print("Tocado bottom")
+            contact.bodyA.node!.isHidden = true
         }else if (contact.bodyB.node?.name == "powerUpBottom"
         && contact.bodyA.node?.name == "puck"){
-//            contact.bodyB.node?.run(self.actionSoundHit)
+            print("Tocado bottom")
+            contact.bodyB.node!.isHidden = true
         }else if (contact.bodyA.node?.name == "puck"){
             contact.bodyA.node?.run(self.actionSoundHit)
+            if self.powerUpActivated == .fast &&
+            contact.bodyB.node?.name == "paddleBottom" {
+                self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! * 3, dy: (self.puck!.physicsBody?.velocity.dy)! * 3)
+            }
+            
         }else if (contact.bodyB.node?.name == "puck"){
             contact.bodyB.node?.run(self.actionSoundHit)
+            if self.powerUpActivated == .fast &&
+                contact.bodyA.node?.name == "paddleBottom" {
+                 
+                self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! * 3, dy: (self.puck!.physicsBody?.velocity.dy)! * 3)
+            }
+            
         }
     }
     
@@ -475,6 +535,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 }
 
 extension GameScene : GameControl {
+    
+    func setPowerUp(didReceive text: String) {
+        let data = text.data(using: .utf8)!
+        do {
+            if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
+            {
+                let p = jsonArray["powerup"]
+                if p == 0.0
+                {
+                    self.powerUpActivated = .normal
+                }else if p == 1.0
+                {
+                    self.powerUpActivated = .fast
+                }else if p == 2.0
+                {
+                    self.powerUpActivated = .slow
+                }else if p == 4.0 {
+                    self.doublePoints = true
+                }
+            } else {
+                print("bad json")
+            }
+        } catch let error as NSError {
+            print(error)
+        }
+    }
+    
     
     func disconnect() {
         OperationQueue.main.addOperation {
