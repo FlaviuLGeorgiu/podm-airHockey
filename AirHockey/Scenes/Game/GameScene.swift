@@ -271,7 +271,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func crearPowerUp() {
-        
+
         self.powerUp = SKSpriteNode()
                 
         self.powerUp?.size = CGSize(width: (self.paddle?.size.width)! * self.ajuste, height: (self.paddle?.size.height)! * self.ajuste)
@@ -508,48 +508,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // TODO [D06] Define el método didBegin(:). En caso de que alguno de los cuerpos que intervienen en el contacto sea el disco (' puck'), reproduce el audio `actionSoundHit`
     func didBegin(_ contact: SKPhysicsContact) {
-        
-        print("HOLA")
+
+    
         if (contact.bodyA.node?.name == "fast"
-            && contact.bodyB.node?.name == "puck"){
+            && contact.bodyB.node?.name == "puck" && !contact.bodyA.node!.isHidden){
             print("Tocado top")
             contact.bodyA.node!.isHidden = true
-            
+            self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! * 3, dy: (self.puck!.physicsBody?.velocity.dy)! * 3)
+
         }else if (contact.bodyB.node?.name == "fast"
-        && contact.bodyA.node?.name == "puck"){
+        && contact.bodyA.node?.name == "puck" && !contact.bodyB.node!.isHidden){
             print("Tocado top")
             contact.bodyB.node!.isHidden = true
+            self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! * 3, dy: (self.puck!.physicsBody?.velocity.dy)! * 3)
         }else if (contact.bodyA.node?.name == "ice"
-            && contact.bodyB.node?.name == "puck"){
+            && contact.bodyB.node?.name == "puck" && !contact.bodyA.node!.isHidden){
             print("Tocado bottom")
             contact.bodyA.node!.isHidden = true
+            self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! / 3, dy: (self.puck!.physicsBody?.velocity.dy)! / 3)
         }else if (contact.bodyB.node?.name == "ice"
-        && contact.bodyA.node?.name == "puck"){
+        && contact.bodyA.node?.name == "puck" && !contact.bodyB.node!.isHidden){
+
             print("Tocado bottom")
             contact.bodyB.node!.isHidden = true
-        }else if (contact.bodyA.node?.name == "double"
-            && contact.bodyB.node?.name == "puck"){
-            print("Tocado bottom")
-            contact.bodyA.node!.isHidden = true
-        }else if (contact.bodyB.node?.name == "double"
-        && contact.bodyA.node?.name == "puck"){
-            print("Tocado bottom")
-            contact.bodyB.node!.isHidden = true
+            self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! / 3, dy: (self.puck!.physicsBody?.velocity.dy)! / 3)
         }else if (contact.bodyA.node?.name == "puck"){
             contact.bodyA.node?.run(self.actionSoundHit)
-            if self.powerUpActivated == .fast &&
-            contact.bodyB.node?.name == "paddleBottom" {
-                self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! * 3, dy: (self.puck!.physicsBody?.velocity.dy)! * 3)
-            }
-            
         }else if (contact.bodyB.node?.name == "puck"){
             contact.bodyB.node?.run(self.actionSoundHit)
-            if self.powerUpActivated == .fast &&
-                contact.bodyA.node?.name == "paddleBottom" {
-                 
-                self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! * 3, dy: (self.puck!.physicsBody?.velocity.dy)! * 3)
-            }
-            
         }
     }
     
