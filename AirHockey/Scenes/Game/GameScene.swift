@@ -35,6 +35,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var powerUpTop : SKSpriteNode?
     private var powerUpBottom : SKSpriteNode?
+    private var powerUp : SKSpriteNode?
 
     // MARK: Marcadores de los jugadores
     private var score : Int = 0
@@ -104,15 +105,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.paddle!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
         self.puck!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/2)
         
-        self.powerUpTop = childNode(withName: "//powerUpTop") as? SKSpriteNode
-        self.powerUpTop?.scale(to: CGSize(width: (self.powerUpTop?.size.width)! * self.ajuste, height: (self.powerUpTop?.size.height)! * self.ajuste))
-        self.powerUpTop!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
-        self.powerUpTop?.isHidden = true
-        
-        self.powerUpBottom = childNode(withName: "//powerUpBottom") as? SKSpriteNode
-        self.powerUpBottom?.scale(to: CGSize(width: (self.powerUpBottom?.size.width)! * self.ajuste, height: (self.powerUpBottom?.size.height)! * self.ajuste))
-        self.powerUpBottom!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
-        self.powerUpBottom?.isHidden = true
+//        self.powerUpTop = childNode(withName: "//powerUpTop") as? SKSpriteNode
+//        self.powerUpTop?.scale(to: CGSize(width: (self.powerUpTop?.size.width)! * self.ajuste, height: (self.powerUpTop?.size.height)! * self.ajuste))
+//        self.powerUpTop!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
+//        self.powerUpTop?.isHidden = true
+//
+//        self.powerUpBottom = childNode(withName: "//powerUpBottom") as? SKSpriteNode
+//        self.powerUpBottom?.scale(to: CGSize(width: (self.powerUpBottom?.size.width)! * self.ajuste, height: (self.powerUpBottom?.size.height)! * self.ajuste))
+//        self.powerUpBottom!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
+//        self.powerUpBottom?.isHidden = true
 
         
         self.scoreboard = childNode(withName: "//score_bottom") as? SKLabelNode
@@ -262,26 +263,47 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
+    // MARK: -Funciones de los powerups
+    
+    func loadTexture(_ node: SKSpriteNode) {
+        
+         self.addChild(node)
+    }
+    
     func crearPowerUp() {
-        let poner = Int.random(in: 1..<3)
-        if poner == 1 {
-            self.powerUpTop?.isHidden = false
-            self.powerUpBottom?.isHidden = true
-            
-            self.powerUpTop?.texture = SKTexture(imageNamed: "fast")
-            
-//            let data: [String: CGFloat] = [
-//                "powerup" : 1.0
-//             ]
-//             let jsonString = stringify(json: data, prettyPrinted: true)
-//             self.connectService?.send(text: jsonString)
-            
-        }else{
-            self.powerUpTop?.isHidden = true
-            self.powerUpBottom?.isHidden = false
-        }
         
+        self.powerUp = SKSpriteNode()
+                
+        self.powerUp?.size = CGSize(width: (self.paddle?.size.width)! * self.ajuste, height: (self.paddle?.size.height)! * self.ajuste)
         
+        self.powerUp!.position.x = CGFloat.random(in: self.convertWidth(w: self.anchura/3)..<self.convertWidth(w: self.anchura/3)+2)
+        self.powerUp!.position.y = CGFloat.random(in: self.convertHeight(h: self.altura/4) / 2..<self.convertHeight(h: self.altura/4))
+    
+        
+         let power = Int.random(in: 1..<4)
+         if power == 1 {
+             //fast
+             self.powerUp!.name = "fast"
+             self.powerUp!.texture = SKTexture(imageNamed: "fast")
+         } else if power == 2{
+             //slow
+             self.powerUp!.name = "ice"
+             self.powerUp!.texture = SKTexture(imageNamed: "ice")
+         } else {
+             //double points
+             if !self.doublePoints {
+                 self.powerUp!.name = "double"
+                 self.powerUp!.texture = SKTexture(imageNamed: "double")
+                 //self.doublePoints = true
+             }
+         }
+        
+        self.powerUp?.physicsBody = SKPhysicsBody(circleOfRadius: ((self.paddle?.size.width)! / 2) * self.ajuste)
+        
+        self.powerUp?.physicsBody?.isDynamic = false
+        self.powerUp?.physicsBody?.categoryBitMask = self.powerUpsCategoryMask
+        self.addChild(self.powerUp!)
+     
     }
     
 
@@ -289,14 +311,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         
-        if self.connectService!.isBrowser {
-            if self.contadorPowerUps == 1000 {
-                crearPowerUp()
-                self.contadorPowerUps = 0
-            }else{
-                self.contadorPowerUps += 1
-            }
+        if self.contadorPowerUps == 200 {
+            print("Creando powerup")
+        
+            self.powerUp?.removeFromParent()
+             self.powerUp = nil
+            crearPowerUp()
+            self.contadorPowerUps = 0
+        }else{
+            self.contadorPowerUps += 1
         }
+        
         
         if let puck = self.puck{
                         // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
@@ -484,21 +509,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // TODO [D06] Define el método didBegin(:). En caso de que alguno de los cuerpos que intervienen en el contacto sea el disco (' puck'), reproduce el audio `actionSoundHit`
     func didBegin(_ contact: SKPhysicsContact) {
         
-    
-        if (contact.bodyA.node?.name == "powerUpTop"
+        print("HOLA")
+        if (contact.bodyA.node?.name == "fast"
             && contact.bodyB.node?.name == "puck"){
             print("Tocado top")
             contact.bodyA.node!.isHidden = true
             
-        }else if (contact.bodyB.node?.name == "powerUpTop"
+        }else if (contact.bodyB.node?.name == "fast"
         && contact.bodyA.node?.name == "puck"){
             print("Tocado top")
             contact.bodyB.node!.isHidden = true
-        }else if (contact.bodyA.node?.name == "powerUpBottom"
+        }else if (contact.bodyA.node?.name == "ice"
             && contact.bodyB.node?.name == "puck"){
             print("Tocado bottom")
             contact.bodyA.node!.isHidden = true
-        }else if (contact.bodyB.node?.name == "powerUpBottom"
+        }else if (contact.bodyB.node?.name == "ice"
+        && contact.bodyA.node?.name == "puck"){
+            print("Tocado bottom")
+            contact.bodyB.node!.isHidden = true
+        }else if (contact.bodyA.node?.name == "double"
+            && contact.bodyB.node?.name == "puck"){
+            print("Tocado bottom")
+            contact.bodyA.node!.isHidden = true
+        }else if (contact.bodyB.node?.name == "double"
         && contact.bodyA.node?.name == "puck"){
             print("Tocado bottom")
             contact.bodyB.node!.isHidden = true
