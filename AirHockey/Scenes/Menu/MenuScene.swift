@@ -23,8 +23,7 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
             UserDefaults.standard.set(self.textInput?.text, forKey: "myName")
             textInput?.removeFromSuperview()
             view?.gestureRecognizers?.removeAll()
-            let reveal = SKTransition.reveal(with: .down,
-            duration: 1)
+            let reveal = SKTransition.flipHorizontal(withDuration: 0.2)
             if let scene = SKScene(fileNamed: "ConfigScene"),
                let view = self.view {
                 scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)

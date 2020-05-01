@@ -202,18 +202,51 @@ extension ListScene : MultipeerConnectServiceDelegate {
     func didReciveSize(didReceive text: String) {
         let data = text.data(using: .utf8)!
         do {
-            if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
+            if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:Any]
             {
                 var altura = UIScreen.main.bounds.height
                 var anchura = UIScreen.main.bounds.width
-                if jsonArray["height"]! <= altura{
-                    altura = jsonArray["height"]!
+                if (jsonArray["height"] as! CGFloat) <= altura {
+                    altura = jsonArray["height"] as! CGFloat
                 }
-                if jsonArray["width"]! <= anchura{
-                    anchura = jsonArray["width"]!
+                if (jsonArray["width"] as! CGFloat) <= anchura{
+                    anchura = jsonArray["width"] as! CGFloat
                 }
                 self.appDelegate.altura = altura
-                self.appDelegate.anchura = anchura
+                               self.appDelegate.anchura = anchura
+                
+//                Comprobamos los datos que recibimos solo si somos el invitado (comunicacion cruzada)
+                if !self.connectService.isBrowser{
+                    let color = jsonArray["color"] as! Bool
+                   
+                    self.appDelegate.myColor = color ? #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1) : #colorLiteral(red: 1, green: 0.2156862766, blue: 0.3725490272, alpha: 1)
+                    
+                    self.appDelegate.startWithPuck = jsonArray["start"] as! Bool
+                    
+                    self.appDelegate.maxScore = jsonArray["maxscore"] as! Int
+                    
+                    self.appDelegate.powerUps = jsonArray["powerups"] as! Bool
+                }
+               
+                
+                if self.appDelegate.myColor == #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1) {
+                     print("Mi color es azul")
+                 }else{
+                     print("Mi color es rojo")
+                 }
+                 
+                 if self.appDelegate.startWithPuck {
+                     print("Empiezo partida")
+                 }else{
+                     print("No empiezo")
+                 }
+                 print("MaxScore: "+String(self.appDelegate.maxScore))
+                if self.appDelegate.powerUps {
+                    print("Hay poderes")
+                }else{
+                    print("No hay poderes")
+                }
+                
                 removeLoadingGif()
                 loadGameScene()
                 
@@ -267,11 +300,36 @@ extension ListScene : MultipeerConnectServiceDelegate {
         print("Conectado")
 //        removeLoadingGif()
 //        loadGameScene()
-        let data: [String: CGFloat] = [
+        
+        let data: [String: Any] = [
             "height" : UIScreen.main.bounds.height,
-            "width" : UIScreen.main.bounds.width
+            "width" : UIScreen.main.bounds.width,
+            "color" : self.appDelegate.myColor == #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1) ? false : true,
+            "start" : !self.appDelegate.startWithPuck,
+            "maxscore" : self.appDelegate.maxScore,
+            "powerups" : self.appDelegate.powerUps
         ]
         let jsonString = stringify(json: data, prettyPrinted: true)
+        
+        print("ENVIO")
+        if self.appDelegate.myColor == #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1) {
+            print("Mi color es azul")
+        }else{
+            print("Mi color es rojo")
+        }
+        
+        if self.appDelegate.startWithPuck {
+            print("Empiezo partida")
+        }else{
+            print("No empiezo")
+        }
+        print("MaxScore: "+String(self.appDelegate.maxScore))
+       if self.appDelegate.powerUps {
+           print("Hay poderes")
+       }else{
+           print("No hay poderes")
+       }
+        
         self.connectService.send(text: jsonString)
     }
     

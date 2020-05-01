@@ -218,9 +218,10 @@ extension MultipeerConnectService : MCSessionDelegate {
         }else if str == "double"{
             self.gameDelegate?.setPowerUp(didReceive: str)
         }else{
+            
             let data = str.data(using: .utf8)!
             do {
-                if let json = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
+                if let json = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:Any]
                 {
                     if let _ = json["dx"]{
                         self.gameDelegate?.puckService(didReceive: str)
@@ -228,10 +229,9 @@ extension MultipeerConnectService : MCSessionDelegate {
                         self.delegate?.didReciveSize(didReceive: str)
                     }
                     
-                } else {
-                    print("bad json")
                 }
-            } catch let error as NSError {
+                    
+            } catch let error as Error {
                 print(error)
             }
         }

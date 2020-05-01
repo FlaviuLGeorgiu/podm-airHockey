@@ -40,7 +40,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: Marcadores de los jugadores
     private var score : Int = 0
     //private var scoreTop : Int = 0
-    private let maxScore = 3
     
     // MARK: Powerups
     private var powerUpActivated : PowerUpsSpeed = .fast
@@ -96,6 +95,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         // TODO [B04] Obten las referencias a los nodos de la escena
         //self.paddleTop = childNode(withName: "//paddleTop") as? SKSpriteNode
+//        if self.appDelegate.connectService!.isBrowser{
+        self.configGame()
+        
+        self.createSceneLimits()
+        self.updateScore()
+        
+        //self.physicsWorld.gravity = CGVector.zero
+    }
+    
+    func configGame(){
+        
+        self.color = self.appDelegate.myColor
+        
         self.paddle = childNode(withName: "//paddleBottom") as? SKSpriteNode
         self.puck = childNode(withName: "//puck") as? SKSpriteNode
         
@@ -104,38 +116,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.paddle!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
         self.puck!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/2)
-        
-//        self.powerUpTop = childNode(withName: "//powerUpTop") as? SKSpriteNode
-//        self.powerUpTop?.scale(to: CGSize(width: (self.powerUpTop?.size.width)! * self.ajuste, height: (self.powerUpTop?.size.height)! * self.ajuste))
-//        self.powerUpTop!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
-//        self.powerUpTop?.isHidden = true
-//
-//        self.powerUpBottom = childNode(withName: "//powerUpBottom") as? SKSpriteNode
-//        self.powerUpBottom?.scale(to: CGSize(width: (self.powerUpBottom?.size.width)! * self.ajuste, height: (self.powerUpBottom?.size.height)! * self.ajuste))
-//        self.powerUpBottom!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
-//        self.powerUpBottom?.isHidden = true
 
-        
         self.scoreboard = childNode(withName: "//score_bottom") as? SKLabelNode
         self.scoreboard?.fontSize = self.scoreboard!.fontSize * self.ajuste
         self.scoreboard!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/2)
         
-        if !(self.connectService?.isBrowser ?? false){
+        if !self.appDelegate.startWithPuck {
             self.puck?.position = CGPoint(x: self.frame.maxX + 50, y: 0)
             self.estoyEnCampo = false
-            self.color = #colorLiteral(red: 1, green: 0.2156862766, blue: 0.3725490272, alpha: 1)
+        }
+        
+        
+        if self.appDelegate.myColor == #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1){
+           
             //self.puck?.removeFromParent()
+            self.paddle?.texture = SKTexture(imageNamed: "paddle_blue")
+            self.scoreboard?.fontColor = self.color
+        }else{
             self.paddle?.texture = SKTexture(imageNamed: "paddle_red")
             self.scoreboard?.fontColor = self.color
         }
-
-        // TODO [D05] Establece esta clase como el contact delegate del mundo fisico de la escena
         self.physicsWorld.contactDelegate = self
-                
-        self.createSceneLimits()
-        self.updateScore()
-        
-        //self.physicsWorld.gravity = CGVector.zero
     }
     
     func createSceneLimits() {
@@ -148,11 +149,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // MARK: - PORTERIA
         // TODO [C12] Dibuja las dos porterias (rectangulos) y la linea de medio campo mediante nodos SKShapeNode
         let porteriaLado = SKShapeNode(rect: CGRect(x: self.minAnchuraUIScreenEnValorFrame - 20, y: -self.convertHeight(h: self.altura/4), width: self.convertWidth(w: self.anchura/4), height: self.convertHeight(h: self.altura/2)))
-        if self.connectService?.isBrowser ?? false {
-            porteriaLado.strokeColor = UIColor.blue
-        }else {
-            porteriaLado.strokeColor = UIColor.red
-        }
+        porteriaLado.strokeColor = self.color
         porteriaLado.glowWidth = 4.0  * self.ajuste
         self.addChild(porteriaLado)
         
@@ -193,11 +190,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pathTopLeft.addLines(between: [goalTopLeft, topLeft, topMiddle])
         
         let drawableTopLeft = SKShapeNode(path: pathTopLeft)
-        if self.connectService?.isBrowser ?? false {
+        /*if self.connectService?.isBrowser ?? false {
             drawableTopLeft.strokeColor = UIColor.blue
         }else{
             drawableTopLeft.strokeColor = UIColor.red
-        }
+        }*/
+        drawableTopLeft.strokeColor = self.color
         drawableTopLeft.lineWidth = 10 * self.ajuste
         self.addChild(drawableTopLeft)
 
@@ -216,11 +214,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pathBottomLeft.addLines(between: [goalBottomLeft, bottomLeft, bottomMiddle])
         
         let drawableBottomLeft = SKShapeNode(path: pathBottomLeft)
-        if self.connectService?.isBrowser ?? false {
+        /*if self.connectService?.isBrowser ?? false {
             drawableBottomLeft.strokeColor = UIColor.blue
         }else{
             drawableBottomLeft.strokeColor = UIColor.red
-        }
+        }*/
+        drawableBottomLeft.strokeColor = self.color
         drawableBottomLeft.lineWidth = 10 * self.ajuste
         self.addChild(drawableBottomLeft)
 
@@ -274,7 +273,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         self.powerUp = SKSpriteNode()
                 
-        self.powerUp?.size = CGSize(width: (self.paddle?.size.width)! * self.ajuste, height: (self.paddle?.size.height)! * self.ajuste)
+        self.powerUp?.size = CGSize(width: (self.paddle?.size.width)!, height: (self.paddle?.size.height)!)
         
         self.powerUp!.position.x = CGFloat.random(in: self.anchura/3..<self.anchura/2)
         self.powerUp!.position.y = CGFloat.random(in: (-self.altura/2)-50..<(self.altura/2)+50)
@@ -311,17 +310,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         
-        if self.contadorPowerUps == 200 {
-            print("Creando powerup")
+        if self.appDelegate.powerUps {
+            if self.contadorPowerUps == 200 {
+                print("Creando powerup")
 
-            self.powerUp?.removeFromParent()
-            self.powerUp = nil
-            crearPowerUp()
-            self.contadorPowerUps = 0
-        }else{
-            self.contadorPowerUps += 1
+                self.powerUp?.removeFromParent()
+                self.powerUp = nil
+                crearPowerUp()
+                self.contadorPowerUps = 0
+            }else{
+                self.contadorPowerUps += 1
+            }
         }
-        
         
         if let puck = self.puck{
                         // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
@@ -338,14 +338,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
           
                 resetPuck(pos: spawnPos)
                 
-              /*  goal(score: self.scoreBottom,marcador: self.scoreboardBottom!,
-                textoWin: "BLUE WINS!",colorTexto: self.colorBotton,
-                spawnPos: spawnPos)*/
             }else if ((puck.position.x) > self.frame.maxX) && self.estoyEnCampo {
                  print("Cambio de mapa")
                 
-                let data: [String: CGFloat] = [
-                    "y" : (self.frame.maxY - self.puck!.position.y),
+                let data: [String: Any] = [
+                    "y" : self.convertHeightInverso(h: self.puck!.position.y),
                     "dx": self.puck!.physicsBody!.velocity.dx,
                     "dy": self.puck!.physicsBody!.velocity.dy
                 ]
@@ -552,6 +549,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         return (self.frame.height * h) / UIScreen.main.bounds.height
     }
     
+    func convertHeightInverso(h : CGFloat) -> CGFloat{
+        return (UIScreen.main.bounds.height * h) / self.frame.height
+    }
+    
+    
     func convertWidth(w : CGFloat) -> CGFloat{
         return (self.frame.width * w) / UIScreen.main.bounds.width
     }
@@ -612,7 +614,7 @@ extension GameScene : GameControl {
         self.doublePoints = false
         
         self.run(self.actionSoundGoal)
-        if(self.score >= self.maxScore){
+        if(self.score >= self.appDelegate.maxScore){
             
             self.connectService?.send(text: "win")
             
@@ -654,11 +656,11 @@ extension GameScene : GameControl {
 //        print("Hola desde puckService")
         let data = text.data(using: .utf8)!
         do {
-            if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
+            if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:Any]
             {
                 self.puck?.position.x = self.frame.maxX - 1
-                self.puck?.position.y = self.frame.minY + jsonArray["y"]!
-                self.puck?.physicsBody?.velocity = CGVector(dx: jsonArray["dx"]! * -1, dy: jsonArray["dy"]! * -1)
+                self.puck?.position.y = self.convertHeight(h: jsonArray["y"] as! CGFloat * -1)
+                self.puck?.physicsBody?.velocity = CGVector(dx: jsonArray["dx"] as! CGFloat * -1, dy: jsonArray["dy"] as! CGFloat * -1)
                 self.estoyEnCampo = true
                 
             } else {

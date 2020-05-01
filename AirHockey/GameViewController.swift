@@ -30,6 +30,7 @@ class GameViewController: UIViewController {
                 //scene.scaleMode = .aspectFill
                 scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
                 // Presenta la escena
+                
                 view.presentScene(scene)
             }
             view.ignoresSiblingOrder = true
