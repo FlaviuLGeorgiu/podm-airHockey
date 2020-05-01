@@ -215,6 +215,8 @@ extension MultipeerConnectService : MCSessionDelegate {
             self.gameDelegate?.didGoal(str)
         }else if str == "win"{
             self.gameDelegate?.didWin(str)
+        }else if str == "double"{
+            self.gameDelegate?.setPowerUp(didReceive: str)
         }else{
             let data = str.data(using: .utf8)!
             do {
@@ -224,8 +226,6 @@ extension MultipeerConnectService : MCSessionDelegate {
                         self.gameDelegate?.puckService(didReceive: str)
                     }else if let _ = json["height"]{
                         self.delegate?.didReciveSize(didReceive: str)
-                    }else if let _ = json["powerup"]{
-                        self.gameDelegate?.setPowerUp(didReceive: str)
                     }
                     
                 } else {

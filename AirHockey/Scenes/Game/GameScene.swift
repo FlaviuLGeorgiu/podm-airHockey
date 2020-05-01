@@ -40,7 +40,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: Marcadores de los jugadores
     private var score : Int = 0
     //private var scoreTop : Int = 0
-    private let maxScore = 2
+    private let maxScore = 3
     
     // MARK: Powerups
     private var powerUpActivated : PowerUpsSpeed = .fast
@@ -294,7 +294,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
              if !self.doublePoints {
                  self.powerUp!.name = "double"
                  self.powerUp!.texture = SKTexture(imageNamed: "double")
-                 //self.doublePoints = true
+                 
              }
          }
         
@@ -313,9 +313,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if self.contadorPowerUps == 200 {
             print("Creando powerup")
-        
+
             self.powerUp?.removeFromParent()
-             self.powerUp = nil
+            self.powerUp = nil
             crearPowerUp()
             self.contadorPowerUps = 0
         }else{
@@ -332,11 +332,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //  - Define el punto de regeneracion del disco (en la mitad del campo del jugador contrario)
                 let spawnPos = CGPoint(x:self.frame.midX,
                 y:self.frame.midY)
-                //self.puck?.position = spawnPos
-            //  - Llama a `goal` indicando los datos del marcador que debe resaltar, el texto a mostrar en pantalla en caso de ganar la partida, su color, y el punto de regeneracion del disco.
                 print("GOLAAAAAAAASO")
-                
+                self.doublePoints = false
                 self.connectService?.send(text: "goal")
+          
                 resetPuck(pos: spawnPos)
                 
               /*  goal(score: self.scoreBottom,marcador: self.scoreboardBottom!,
@@ -528,10 +527,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! / 3, dy: (self.puck!.physicsBody?.velocity.dy)! / 3)
         }else if (contact.bodyB.node?.name == "ice"
         && contact.bodyA.node?.name == "puck" && !contact.bodyB.node!.isHidden){
-
             print("Tocado bottom")
             contact.bodyB.node!.isHidden = true
             self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! / 3, dy: (self.puck!.physicsBody?.velocity.dy)! / 3)
+        }else if (contact.bodyA.node?.name == "double"
+            && contact.bodyB.node?.name == "puck" && !contact.bodyA.node!.isHidden){
+            contact.bodyA.node!.isHidden = true
+            self.doublePoints = true
+            self.connectService?.send(text: "double")
+
+        }else if (contact.bodyB.node?.name == "double"
+        && contact.bodyA.node?.name == "puck" && !contact.bodyB.node!.isHidden){
+            contact.bodyB.node!.isHidden = true
+            self.doublePoints = true
+            self.connectService?.send(text: "double")
         }else if (contact.bodyA.node?.name == "puck"){
             contact.bodyA.node?.run(self.actionSoundHit)
         }else if (contact.bodyB.node?.name == "puck"){
@@ -556,29 +565,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 extension GameScene : GameControl {
     
     func setPowerUp(didReceive text: String) {
-        let data = text.data(using: .utf8)!
-        do {
-            if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:CGFloat]
-            {
-                let p = jsonArray["powerup"]
-                if p == 0.0
-                {
-                    self.powerUpActivated = .normal
-                }else if p == 1.0
-                {
-                    self.powerUpActivated = .fast
-                }else if p == 2.0
-                {
-                    self.powerUpActivated = .slow
-                }else if p == 4.0 {
-                    self.doublePoints = true
-                }
-            } else {
-                print("bad json")
-            }
-        } catch let error as NSError {
-            print(error)
-        }
+        self.doublePoints = true
     }
     
     
@@ -591,6 +578,7 @@ extension GameScene : GameControl {
     func didWin(_ win: String) {
         
         self.puck?.removeFromParent()
+        self.doublePoints = false
     
         self.scoreboard?.zPosition = 2
         self.labelWins = childNode(withName: "//label_wins") as? SKLabelNode
@@ -615,11 +603,16 @@ extension GameScene : GameControl {
     
     
     func didGoal(_ goal: String) {
+        
+        if self.doublePoints{
+            self.score += 1
+        }
         self.score += 1
         self.updateScore()
+        self.doublePoints = false
         
         self.run(self.actionSoundGoal)
-        if(self.score == self.maxScore){
+        if(self.score >= self.maxScore){
             
             self.connectService?.send(text: "win")
             
@@ -653,6 +646,7 @@ extension GameScene : GameControl {
             let sequence = SKAction.sequence([escalaGrande, escalaPequeno])
             let actionRepeat =  SKAction.repeat(sequence, count: 3)
             self.scoreboard!.run(actionRepeat)
+           
         }
     }
     
