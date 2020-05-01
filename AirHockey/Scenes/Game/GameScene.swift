@@ -416,7 +416,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         {
             //reajusta el tamaño de la pantalla al cambiar de escena
             //scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
-            scene.scaleMode = .aspectFill
+            scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
             view.presentScene(scene, transition: flip)
         }
     }
