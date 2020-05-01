@@ -9,63 +9,47 @@
 import Foundation
 import SpriteKit
 
-class ConfigScene: SKScene, ButtonLabelSpriteNodeDelegate{
+class ConfigScene: SKScene, ButtonSpriteNodeDelegate{
+
+    private var scoreLabel : SKLabelNode?
+    private var powerUpsLabel : SKLabelNode?
+    private var puckLabel : SKLabelNode?
+    private var colorsLabel : SKLabelNode?
+    private var plusButton : ButtonSpriteNode?
+    private var minusButton : ButtonSpriteNode?
+    private var playButton : ButtonSpriteNode?
     
-   // private var playButton : ButtonSpriteNode?
-    //private var airHockey : SKLabelNode?
-    //private var forTwo : SKLabelNode?
     let red = #colorLiteral(red: 1, green: 0.2156862766, blue: 0.3725490272, alpha: 1)
     let blue = #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1)
+    let darkBlue = #colorLiteral(red: 0.2274509804, green: 0.3764705882, blue: 0.4980392157, alpha: 1)
     let items = ["Me" , "Opponent"]
-    var segmentedControl : UISegmentedControl?
     var plus : ButtonLabelSpriteNode!
     var minus : ButtonLabelSpriteNode!
     var score : UITextField!
     var scoreValue = 2
-
-    var myColor =  #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1)
-    var startWithPuck = false
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     var textInput : UITextField?
     
     override func didMove(to view: SKView) {
-        print(self.frame)
-        //self.playButton = childNode(withName: "//play_button") as? ButtonSpriteNode
-        //self.airHockey = childNode(withName: "//airHockey") as? SKLabelNode
-        //self.forTwo = childNode(withName: "//forTwo") as? SKLabelNode
+        self.plusButton = childNode(withName: "//plusButton") as? ButtonSpriteNode
+        self.minusButton = childNode(withName: "//minusButton") as? ButtonSpriteNode
+        self.playButton = childNode(withName: "//playButton") as? ButtonSpriteNode
+        self.scoreLabel = childNode(withName: "//scoreLabel") as? SKLabelNode
+        self.powerUpsLabel = childNode(withName: "//powerUpsLabel") as? SKLabelNode
+        self.puckLabel = childNode(withName: "//puckLabel") as? SKLabelNode
+        self.colorsLabel = childNode(withName: "//colorsLabel") as? SKLabelNode
         
-        //self.playButton?.delegate = self
+        self.playButton?.delegate = self
+        self.plusButton?.delegate = self
+        self.minusButton?.delegate = self
         
         // MARK: ODIO ESTO.....
-        let width = UIScreen.main.bounds.width//self.rootView.frame.size.width
-        let height = UIScreen.main.bounds.height
-        
-        /*self.airHockey?.position = CGPoint(x: 0, y: self.frame.height/10 * 2 )
-        self.airHockey?.horizontalAlignmentMode = .center
-        
-        self.forTwo?.position = CGPoint(x: 0, y: self.frame.height/10 * 1.5  )
-        self.forTwo?.horizontalAlignmentMode = .center*/
-        
-        let title = SKLabelNode(fontNamed:"University")
-        title.text = "Config Screen"
-        title.fontSize = 50
-        title.position = CGPoint(x:self.frame.midX, y: self.frame.maxY - height/6)
-        self.addChild(title)
-
-        let scoreTitle = SKLabelNode(fontNamed:"University")
-        scoreTitle.text = "Score to Win"
-        scoreTitle.fontSize = 35
-        scoreTitle.position = CGPoint(x:self.frame.midX, y: title.frame.minY - height/6)
-        self.addChild(scoreTitle)
-        
-        self.minus = ButtonLabelSpriteNode("-")
-        self.minus.name = "minus"
-        self.minus.size.width = 100
-        self.minus.position = CGPoint(x:self.frame.midX - 150, y: scoreTitle.frame.minY - scoreTitle.frame.size.height * 3)
-        self.minus.delegate = self
-        self.addChild(self.minus)
+        let width = UIScreen.main.bounds.width
+        let font = UIFont(name: "University", size: 20)
+        let whiteAttributes = [ NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor: UIColor.white ]
+        let blackAttributes = [ NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor: UIColor.black ]
         
         self.score = UITextField()
         self.score?.textAlignment = .center
@@ -77,62 +61,76 @@ class ConfigScene: SKScene, ButtonLabelSpriteNodeDelegate{
         self.score?.frame.size.width = 100
         self.score?.frame.size.height = 80
         self.score?.isUserInteractionEnabled = false
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            self.score?.center = CGPoint(x: width/2 ,y: self.convertHeight(h: 20 + scoreTitle.position.y + scoreTitle.frame.size.height * 3))
-        } else {
-            self.score?.center = CGPoint(x: width/2 ,y: self.convertHeight(h: scoreTitle.position.y + scoreTitle.frame.size.height * 3) - self.score.frame.size.height/2)
-        }
+        self.score?.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.minusButton!.position.y))
         self.view!.addSubview(self.score!)
         
-        self.plus = ButtonLabelSpriteNode("+")
-        self.plus.name = "plus"
-        self.plus.size.width = 100
-        self.plus.position = CGPoint(x:self.frame.midX + 150, y: scoreTitle.frame.minY - scoreTitle.frame.size.height * 3)
-        self.plus.delegate = self
-        self.addChild(self.plus)
-        
-        let powerTitle = SKLabelNode(fontNamed:"University")
-        powerTitle.text = "Activate Power-Ups?"
-        powerTitle.fontSize = 35
-        powerTitle.position = CGPoint(x:self.frame.midX, y: scoreTitle.frame.minY - height/4)
-        self.addChild(powerTitle)
-        
-        let powerUpsSwitch = UISwitch(frame:CGRect(x: width/2, y: powerTitle.position.y, width: 0, height: 0))
+        let powerUpsSwitch = UISwitch(frame:CGRect(x: width/2, y: self.powerUpsLabel!.position.y, width: 0, height: 0))
         powerUpsSwitch.isOn = true
-        powerUpsSwitch.transform = CGAffineTransform(scaleX: 1.5, y: 1.5)
-        powerUpsSwitch.onTintColor = self.blue
-        powerUpsSwitch.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - powerTitle.position.y) + powerUpsSwitch.frame.size.height)
+        powerUpsSwitch.transform = CGAffineTransform(scaleX: 1.7, y: 1.7)
+        powerUpsSwitch.onTintColor = self.darkBlue
+        powerUpsSwitch.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.powerUpsLabel!.position.y) + powerUpsSwitch.frame.size.height)
         powerUpsSwitch.setOn(true, animated: true)
         powerUpsSwitch.addTarget(self, action: #selector(switchValueDidChange(_:)), for: .valueChanged)
         self.view!.addSubview(powerUpsSwitch)
         
-        /*segmentedControl = UISegmentedControl(items : self.items)
-        segmentedControl!.center = self.scene!.view!.center
-        segmentedControl!.selectedSegmentIndex = 0
-        segmentedControl!.addTarget(self, action: #selector(ConfigScene.indexChanged(_:)), for: .valueChanged)
-
-        segmentedControl!.layer.cornerRadius = 5.0
-        segmentedControl!.backgroundColor = self.blue
-        segmentedControl!.tintColor = self.red
-
-        self.view!.addSubview(segmentedControl!)*/
+        let whoStartsSegment = UISegmentedControl(items : self.items)
+        whoStartsSegment.frame.size.width = self.convertWidth(w: self.puckLabel!.frame.size.width)
+        whoStartsSegment.frame.size.height = whoStartsSegment.frame.size.height*1.8
+        whoStartsSegment.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.puckLabel!.position.y) + whoStartsSegment.frame.size.height)
+        whoStartsSegment.selectedSegmentIndex = 0
+        whoStartsSegment.addTarget(self, action: #selector(ConfigScene.indexChanged(_:)), for: .valueChanged)
+        whoStartsSegment.layer.cornerRadius = 5.0
+        whoStartsSegment.backgroundColor = self.darkBlue
+        whoStartsSegment.setTitleTextAttributes(whiteAttributes as [NSAttributedString.Key : Any], for: .normal)
+        whoStartsSegment.setTitleTextAttributes(blackAttributes as [NSAttributedString.Key : Any], for: .selected)
+        whoStartsSegment.tintColor = self.red
+        self.view!.addSubview(whoStartsSegment)
+        
+        let whatColorSegment = UISegmentedControl(items : self.items)
+        whatColorSegment.frame.size.width = self.convertWidth(w: self.puckLabel!.frame.size.width)
+        whatColorSegment.frame.size.height = whatColorSegment.frame.size.height*1.8
+        whatColorSegment.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.colorsLabel!.position.y) + whatColorSegment.frame.size.height)
+        whatColorSegment.selectedSegmentIndex = 0
+        whatColorSegment.addTarget(self, action: #selector(ConfigScene.indexChangedColor(_:)), for: .valueChanged)
+        whatColorSegment.layer.cornerRadius = 5.0
+        whatColorSegment.setTitleTextAttributes(whiteAttributes as [NSAttributedString.Key : Any], for: .selected)
+        whatColorSegment.setTitleTextAttributes(blackAttributes as [NSAttributedString.Key : Any], for: .normal)
+        whatColorSegment.backgroundColor = self.red
+        if #available(iOS 13.0, *) {
+            whatColorSegment.selectedSegmentTintColor = self.blue
+        } else {
+            whatColorSegment.tintColor = self.blue
+        }
+        self.view!.addSubview(whatColorSegment)
         
     }
     
-    func didPushButton(_ sender: ButtonLabelSpriteNode) {
+    func didPushButton(_ sender: ButtonSpriteNode) {
         if let name = sender.name{
             switch name {
-            case "plus":
-                if self.scoreValue < 10 {
+            case "plusButton":
+                if self.scoreValue < 11 {
                     self.scoreValue += 1
                     self.appDelegate.maxScore = scoreValue
                     self.score?.text = String(self.scoreValue)
                 }
-            case "minus":
+            case "minusButton":
                 if self.scoreValue > 1 {
                     self.scoreValue -= 1
                     self.appDelegate.maxScore = scoreValue
                     self.score?.text = String(self.scoreValue)
+                }
+            case "playButton":
+                for view in self.view!.subviews {
+                    view.removeFromSuperview()
+                }
+                view?.gestureRecognizers?.removeAll()
+                let reveal = SKTransition.reveal(with: .down,
+                duration: 1)
+                if let scene = SKScene(fileNamed: "ListScene"),
+                   let view = self.view {
+                    scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
+                    view.presentScene(scene, transition: reveal)
                 }
             default:
                 self.score?.text = String(self.scoreValue)
@@ -144,12 +142,28 @@ class ConfigScene: SKScene, ButtonLabelSpriteNodeDelegate{
         return  UIScreen.main.bounds.height * h / self.frame.height
     }
     
+    func convertWidth(w : CGFloat) -> CGFloat{
+        return  UIScreen.main.bounds.width * w / self.frame.width
+    }
+    
+    
     @objc func indexChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex{
             case 0:
-                print("iOS");
+                self.appDelegate.startWithPuck = true
             case 1:
-                print("Android")
+                self.appDelegate.startWithPuck = false
+            default:
+                break
+            }
+    }
+    
+    @objc func indexChangedColor(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex{
+            case 0:
+                self.appDelegate.myColor = self.blue
+            case 1:
+                self.appDelegate.myColor = self.red
             default:
                 break
             }

@@ -25,7 +25,7 @@ class GameViewController: UIViewController {
         //let scene = SKScene(fileNamed: Scene.menu.rawValue)!
         if let view = self.view as! SKView? {
             // Carga la escena desde 'GameScene.sks'
-            if let scene = SKScene(fileNamed: "ConfigScene") {
+            if let scene = SKScene(fileNamed: "MenuScene") {
                 // TODO [A03] Prueba con diferentes estrategias de escalado de la escena.
                 //scene.scaleMode = .aspectFill
                 scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)

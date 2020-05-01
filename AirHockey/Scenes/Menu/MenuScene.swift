@@ -25,7 +25,7 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
             view?.gestureRecognizers?.removeAll()
             let reveal = SKTransition.reveal(with: .down,
             duration: 1)
-            if let scene = SKScene(fileNamed: "ListScene"),
+            if let scene = SKScene(fileNamed: "ConfigScene"),
                let view = self.view {
                 scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
                 view.presentScene(scene, transition: reveal)
