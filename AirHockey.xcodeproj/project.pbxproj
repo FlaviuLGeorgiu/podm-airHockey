@@ -12,6 +12,7 @@
 		7DA7E3FF245C401B00E73C1A /* double.png in Resources */ = {isa = PBXBuildFile; fileRef = 7DA7E3FE245C401B00E73C1A /* double.png */; };
 		7DA7E402245C402400E73C1A /* ice.png in Resources */ = {isa = PBXBuildFile; fileRef = 7DA7E400245C402400E73C1A /* ice.png */; };
 		7DA7E403245C402400E73C1A /* fast.png in Resources */ = {isa = PBXBuildFile; fileRef = 7DA7E401245C402400E73C1A /* fast.png */; };
+		7DE5BA13245CD87B00520115 /* dorado.png in Resources */ = {isa = PBXBuildFile; fileRef = 7DE5BA12245CD87B00520115 /* dorado.png */; };
 		852EB46323A654FD00EC712C /* boton.png in Resources */ = {isa = PBXBuildFile; fileRef = 852EB46223A654FD00EC712C /* boton.png */; };
 		852EB46523A6565600EC712C /* font-score.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 852EB46423A6565600EC712C /* font-score.ttf */; };
 		852EB46823A6657600EC712C /* hit.wav in Resources */ = {isa = PBXBuildFile; fileRef = 852EB46623A6657500EC712C /* hit.wav */; };
@@ -48,6 +49,7 @@
 		7DA7E3FE245C401B00E73C1A /* double.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = double.png; sourceTree = "<group>"; };
 		7DA7E400245C402400E73C1A /* ice.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ice.png; sourceTree = "<group>"; };
 		7DA7E401245C402400E73C1A /* fast.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fast.png; sourceTree = "<group>"; };
+		7DE5BA12245CD87B00520115 /* dorado.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dorado.png; sourceTree = "<group>"; };
 		852EB46223A654FD00EC712C /* boton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = boton.png; sourceTree = "<group>"; };
 		852EB46423A6565600EC712C /* font-score.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "font-score.ttf"; sourceTree = "<group>"; };
 		852EB46623A6657500EC712C /* hit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = hit.wav; sourceTree = "<group>"; };
@@ -135,6 +137,7 @@
 		85ED32F823BCF93C00F95740 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				7DE5BA12245CD87B00520115 /* dorado.png */,
 				7DA7E3FE245C401B00E73C1A /* double.png */,
 				852EB46223A654FD00EC712C /* boton.png */,
 				85ED32F423BCF8B000F95740 /* puck.png */,
@@ -271,6 +274,7 @@
 				852EB46923A6657600EC712C /* goal.wav in Resources */,
 				C734A02123F5C9C900B207F2 /* MenuScene.sks in Resources */,
 				85ED32F723BCF8B000F95740 /* puck.png in Resources */,
+				7DE5BA13245CD87B00520115 /* dorado.png in Resources */,
 				85ED32F523BCF8B000F95740 /* paddle_red.png in Resources */,
 				852EB46523A6565600EC712C /* font-score.ttf in Resources */,
 				85CAC69422F4659100153368 /* LaunchScreen.storyboard in Resources */,
