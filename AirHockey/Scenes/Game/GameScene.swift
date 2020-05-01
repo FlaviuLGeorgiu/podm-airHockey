@@ -10,15 +10,20 @@ import SpriteKit
 import GameplayKit
 import MultipeerConnectivity
 
+enum PowerUpsSpeed {
+    case normal, fast, slow
+}
+
 // TODO [D04] Implementa el protocolo `SKPhysicsContactDelegate`
 class GameScene: SKScene, SKPhysicsContactDelegate {
+    
+    var contadorPowerUps = 0
+    
     
     // MARK: - Session
     var session : MCSession? = nil
     var connectService : MultipeerConnectService?
-    
     var estoyEnCampo = true
-    
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     // MARK: - Referencias a nodos de la escena
@@ -27,20 +32,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var puck : SKSpriteNode?
     private var scoreboard : SKLabelNode?
     private var labelWins : SKLabelNode?
+    
+    private var powerUpTop : SKSpriteNode?
+    private var powerUpBottom : SKSpriteNode?
+    private var powerUp : SKSpriteNode?
 
     // MARK: Marcadores de los jugadores
     private var score : Int = 0
     //private var scoreTop : Int = 0
-    private let maxScore = 2
+    private let maxScore = 3
+    
+    // MARK: Powerups
+    private var powerUpActivated : PowerUpsSpeed = .fast
+    private var doublePoints : Bool = false;
 
     // MARK: Colores de los jugadores
     private var color = #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1)
 
     // MARK: Categorias de los objetos fisicos
-    private let paddleCategoryMask : UInt32 = 0b0001
-    private let puckCategoryMask : UInt32 = 0b0010
-    private let limitsCategoryMask : UInt32 = 0b0100
-    private let midfieldCategoryMask : UInt32 = 0b1000
+    private let paddleCategoryMask : UInt32 = 0b00001
+    private let puckCategoryMask : UInt32 = 0b00010
+    private let limitsCategoryMask : UInt32 = 0b00100
+    private let midfieldCategoryMask : UInt32 = 0b01000
+    private let powerUpsCategoryMask : UInt32 = 0b10000
 
     // MARK: Efectos de sonido
     // TODO [D02] Crear acciones para reproducir "goal.wav" y "hit.wav"
@@ -64,6 +78,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.session = appDelegate.gameSession
         self.connectService = appDelegate.connectService
         self.connectService?.gameDelegate = self
+        
         
         self.diffHeight = UIScreen.main.bounds.height - appDelegate.altura!
         self.altura = appDelegate.altura!
@@ -89,6 +104,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.paddle!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
         self.puck!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/2)
+        
+//        self.powerUpTop = childNode(withName: "//powerUpTop") as? SKSpriteNode
+//        self.powerUpTop?.scale(to: CGSize(width: (self.powerUpTop?.size.width)! * self.ajuste, height: (self.powerUpTop?.size.height)! * self.ajuste))
+//        self.powerUpTop!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
+//        self.powerUpTop?.isHidden = true
+//
+//        self.powerUpBottom = childNode(withName: "//powerUpBottom") as? SKSpriteNode
+//        self.powerUpBottom?.scale(to: CGSize(width: (self.powerUpBottom?.size.width)! * self.ajuste, height: (self.powerUpBottom?.size.height)! * self.ajuste))
+//        self.powerUpBottom!.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura/4)
+//        self.powerUpBottom?.isHidden = true
+
         
         self.scoreboard = childNode(withName: "//score_bottom") as? SKLabelNode
         self.scoreboard?.fontSize = self.scoreboard!.fontSize * self.ajuste
@@ -236,13 +262,69 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
     }
+    
+    // MARK: -Funciones de los powerups
+    
+    func loadTexture(_ node: SKSpriteNode) {
+        
+         self.addChild(node)
+    }
+    
+    func crearPowerUp() {
+
+        self.powerUp = SKSpriteNode()
+                
+        self.powerUp?.size = CGSize(width: (self.paddle?.size.width)! * self.ajuste, height: (self.paddle?.size.height)! * self.ajuste)
+        
+        self.powerUp!.position.x = CGFloat.random(in: self.anchura/3..<self.anchura/2)
+        self.powerUp!.position.y = CGFloat.random(in: (-self.altura/2)-50..<(self.altura/2)+50)
+    
+        
+         let power = Int.random(in: 1..<4)
+         if power == 1 {
+             //fast
+             self.powerUp!.name = "fast"
+             self.powerUp!.texture = SKTexture(imageNamed: "fast")
+         } else if power == 2{
+             //slow
+             self.powerUp!.name = "ice"
+             self.powerUp!.texture = SKTexture(imageNamed: "ice")
+         } else {
+             //double points
+             if !self.doublePoints {
+                 self.powerUp!.name = "double"
+                 self.powerUp!.texture = SKTexture(imageNamed: "double")
+                 
+             }
+         }
+        
+        self.powerUp?.physicsBody = SKPhysicsBody(circleOfRadius: ((self.paddle?.size.width)! / 2) * self.ajuste)
+        self.powerUp?.zRotation = -1.5708 //90 grados en radianes
+        self.powerUp?.physicsBody?.isDynamic = false
+        self.powerUp?.physicsBody?.categoryBitMask = self.powerUpsCategoryMask
+        self.addChild(self.powerUp!)
+     
+    }
+    
 
     // MARK: - Metodos del ciclo del juego
     
     override func update(_ currentTime: TimeInterval) {
         
+        if self.contadorPowerUps == 200 {
+            print("Creando powerup")
+
+            self.powerUp?.removeFromParent()
+            self.powerUp = nil
+            crearPowerUp()
+            self.contadorPowerUps = 0
+        }else{
+            self.contadorPowerUps += 1
+        }
+        
+        
         if let puck = self.puck{
-            // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
+                        // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
             if ((puck.position.x) < self.minAnchuraUIScreenEnValorFrame){
             //  - Incrementa la puntuacion del jugador correspondiente
 //                self.scoreBottom = self.scoreBottom + 1
@@ -250,11 +332,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //  - Define el punto de regeneracion del disco (en la mitad del campo del jugador contrario)
                 let spawnPos = CGPoint(x:self.frame.midX,
                 y:self.frame.midY)
-                //self.puck?.position = spawnPos
-            //  - Llama a `goal` indicando los datos del marcador que debe resaltar, el texto a mostrar en pantalla en caso de ganar la partida, su color, y el punto de regeneracion del disco.
                 print("GOLAAAAAAAASO")
-                
+                self.doublePoints = false
                 self.connectService?.send(text: "goal")
+          
                 resetPuck(pos: spawnPos)
                 
               /*  goal(score: self.scoreBottom,marcador: self.scoreboardBottom!,
@@ -276,7 +357,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
         }
-        
         
     }
     
@@ -427,7 +507,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // TODO [D06] Define el método didBegin(:). En caso de que alguno de los cuerpos que intervienen en el contacto sea el disco (' puck'), reproduce el audio `actionSoundHit`
     func didBegin(_ contact: SKPhysicsContact) {
-        if (contact.bodyA.node?.name == "puck"){
+
+    
+        if (contact.bodyA.node?.name == "fast"
+            && contact.bodyB.node?.name == "puck" && !contact.bodyA.node!.isHidden){
+            print("Tocado top")
+            contact.bodyA.node!.isHidden = true
+            self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! * 3, dy: (self.puck!.physicsBody?.velocity.dy)! * 3)
+
+        }else if (contact.bodyB.node?.name == "fast"
+        && contact.bodyA.node?.name == "puck" && !contact.bodyB.node!.isHidden){
+            print("Tocado top")
+            contact.bodyB.node!.isHidden = true
+            self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! * 3, dy: (self.puck!.physicsBody?.velocity.dy)! * 3)
+        }else if (contact.bodyA.node?.name == "ice"
+            && contact.bodyB.node?.name == "puck" && !contact.bodyA.node!.isHidden){
+            print("Tocado bottom")
+            contact.bodyA.node!.isHidden = true
+            self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! / 3, dy: (self.puck!.physicsBody?.velocity.dy)! / 3)
+        }else if (contact.bodyB.node?.name == "ice"
+        && contact.bodyA.node?.name == "puck" && !contact.bodyB.node!.isHidden){
+            print("Tocado bottom")
+            contact.bodyB.node!.isHidden = true
+            self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! / 3, dy: (self.puck!.physicsBody?.velocity.dy)! / 3)
+        }else if (contact.bodyA.node?.name == "double"
+            && contact.bodyB.node?.name == "puck" && !contact.bodyA.node!.isHidden){
+            contact.bodyA.node!.isHidden = true
+            self.doublePoints = true
+            self.connectService?.send(text: "double")
+
+        }else if (contact.bodyB.node?.name == "double"
+        && contact.bodyA.node?.name == "puck" && !contact.bodyB.node!.isHidden){
+            contact.bodyB.node!.isHidden = true
+            self.doublePoints = true
+            self.connectService?.send(text: "double")
+        }else if (contact.bodyA.node?.name == "puck"){
             contact.bodyA.node?.run(self.actionSoundHit)
         }else if (contact.bodyB.node?.name == "puck"){
             contact.bodyB.node?.run(self.actionSoundHit)
@@ -450,6 +564,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 extension GameScene : GameControl {
     
+    func setPowerUp(didReceive text: String) {
+        self.doublePoints = true
+    }
+    
+    
     func disconnect() {
         OperationQueue.main.addOperation {
             self.goToTitle()
@@ -459,6 +578,7 @@ extension GameScene : GameControl {
     func didWin(_ win: String) {
         
         self.puck?.removeFromParent()
+        self.doublePoints = false
     
         self.scoreboard?.zPosition = 2
         self.labelWins = childNode(withName: "//label_wins") as? SKLabelNode
@@ -483,11 +603,16 @@ extension GameScene : GameControl {
     
     
     func didGoal(_ goal: String) {
+        
+        if self.doublePoints{
+            self.score += 1
+        }
         self.score += 1
         self.updateScore()
+        self.doublePoints = false
         
         self.run(self.actionSoundGoal)
-        if(self.score == self.maxScore){
+        if(self.score >= self.maxScore){
             
             self.connectService?.send(text: "win")
             
@@ -521,6 +646,7 @@ extension GameScene : GameControl {
             let sequence = SKAction.sequence([escalaGrande, escalaPequeno])
             let actionRepeat =  SKAction.repeat(sequence, count: 3)
             self.scoreboard!.run(actionRepeat)
+           
         }
     }
     

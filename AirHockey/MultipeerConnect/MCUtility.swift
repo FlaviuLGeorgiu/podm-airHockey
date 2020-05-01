@@ -29,6 +29,7 @@ protocol GameControl {
     func didGoal(_ goal: String)
     func didWin(_ win: String)
     func disconnect()
+    func setPowerUp(didReceive text: String)
 }
 
 class MultipeerConnectService : NSObject {
@@ -214,6 +215,8 @@ extension MultipeerConnectService : MCSessionDelegate {
             self.gameDelegate?.didGoal(str)
         }else if str == "win"{
             self.gameDelegate?.didWin(str)
+        }else if str == "double"{
+            self.gameDelegate?.setPowerUp(didReceive: str)
         }else{
             let data = str.data(using: .utf8)!
             do {
