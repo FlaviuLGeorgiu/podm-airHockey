@@ -101,6 +101,14 @@ class MultipeerConnectService : NSObject {
         self.serviceBrowser.stopBrowsingForPeers()
     }
     
+    func restart(){
+        
+        self.serviceAdvertiser.startAdvertisingPeer()
+        
+        self.serviceBrowser.startBrowsingForPeers()
+    }
+    
+    
     // Método que se ejecutará para realizar una invitación a un peer encontrado. En este caso el peer ya estará preseleccionado.
     func invite(displayName: String) {
         self.isBrowser = true
@@ -230,7 +238,7 @@ extension MultipeerConnectService : MCSessionDelegate {
                     
                 }
                     
-            } catch let error as Error {
+            } catch let error as NSError {
                 print(error)
             }
         }

@@ -14,7 +14,7 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     // MARK: - MultipeerConnect
-    let connectService = MultipeerConnectService()
+//    let connectService = MultipeerConnectService()
     var listaUsuarios : [String] = []
     var listaPeersIDs : [MCPeerID] = []
 
@@ -65,13 +65,15 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
     override func didMove(to view: SKView) {
         /* Setup your scene here */
         self.listaUsuarios = [String]()
-        self.connectService.delegate=self
+        
         
         addChild(moveableNode)
         prepareVerticalScrolling()
-        
         appDelegate.gameScene = self
-        appDelegate.connectService = self.connectService
+        
+        appDelegate.connectService = MultipeerConnectService()
+        appDelegate.connectService!.delegate=self
+        
         
         let buttonBackGround = ButtonLabelSpriteNode("Back to Settings")
         buttonBackGround.name = "settings"
@@ -144,7 +146,7 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
         if(!self.conectando){
             if let nombre = sender.name {
                 if nombre == "settings" {
-                    self.connectService.disconnect()
+                    self.appDelegate.connectService!.disconnect()
                     view?.gestureRecognizers?.removeAll()
                     let reveal = SKTransition.reveal(with: .down,
                     duration: 1)
@@ -161,7 +163,7 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
                     }
                     .addAction(title: "SI", style: .default) { _ in
                         self.addLoadingGif()
-                        self.connectService.invite(displayName: nombre)
+                        self.appDelegate.connectService!.invite(displayName: nombre)
                     }
                     .build()
                     .showAlert(animated: true)
@@ -194,6 +196,7 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
 private extension ListScene {
     
     func loadGameScene() {
+       
         OperationQueue.main.addOperation {
             let reveal = SKTransition.reveal(with: .down,
             duration: 1)
@@ -201,8 +204,7 @@ private extension ListScene {
                let view = self.view {
                 scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
                 
-                self.appDelegate.gameSession = self.connectService.session
-                
+                self.appDelegate.connectService!.disconnect()
                 view.presentScene(scene, transition: reveal)
             }
         }
@@ -236,7 +238,7 @@ extension ListScene : MultipeerConnectServiceDelegate {
                                self.appDelegate.anchura = anchura
                 
 //                Comprobamos los datos que recibimos solo si somos el invitado (comunicacion cruzada)
-                if !self.connectService.isBrowser{
+                if !self.appDelegate.connectService!.isBrowser{
                     let color = jsonArray["color"] as! Bool
                    
                     self.appDelegate.myColor = color ? #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1) : #colorLiteral(red: 1, green: 0.2156862766, blue: 0.3725490272, alpha: 1)
@@ -312,7 +314,7 @@ extension ListScene : MultipeerConnectServiceDelegate {
             "powerups" : self.appDelegate.powerUps
         ]
         let jsonString = stringify(json: data, prettyPrinted: true)
-        self.connectService.send(text: jsonString)
+        self.appDelegate.connectService!.send(text: jsonString)
     }
     
 }

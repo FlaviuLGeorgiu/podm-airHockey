@@ -20,7 +20,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Referencias Session
     var session : MCSession? = nil
-    var connectService : MultipeerConnectService?
+//    var connectService : MultipeerConnectService?
     var estoyEnCampo = true
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
@@ -73,10 +73,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
         self.appDelegate.gameScene = self
         
-        self.session = appDelegate.gameSession
-        self.connectService = appDelegate.connectService
-        self.connectService?.gameDelegate = self
-        
+//        self.connectService = appDelegate.connectService
+//        self.connectService?.gameDelegate = self
+        self.appDelegate.connectService?.gameDelegate = self
         
         self.diffHeight = UIScreen.main.bounds.height - appDelegate.altura!
         self.altura = appDelegate.altura!
@@ -293,7 +292,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 y:self.frame.midY)
                 self.doublePoints = false
                 self.puck!.texture = SKTexture(imageNamed: "puck")
-                self.connectService?.send(text: "goal")
+                self.appDelegate.connectService?.send(text: "goal")
           
                 resetPuck(pos: spawnPos)
                 
@@ -308,7 +307,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let jsonString = stringify(json: data, prettyPrinted: true)
                
                 self.estoyEnCampo = false
-                self.connectService?.send(text: jsonString)
+                self.appDelegate.connectService?.send(text: jsonString)
                 
             }
             
@@ -360,9 +359,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: -goToTitle
     func goToTitle() {
         
-        self.connectService?.session.disconnect()
-        self.connectService?.disconnect()
-        self.appDelegate.connectService?.disconnect()
+//        self.connectService?.session.disconnect()
+        self.appDelegate.connectService?.session.disconnect()
+//        self.appDelegate.connectService?.restart()
         
         let flip = SKTransition.flipHorizontal(withDuration: 0.25)
         
@@ -476,14 +475,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             contact.bodyA.node!.isHidden = true
             self.doublePoints = true
             self.puck!.texture = SKTexture(imageNamed: "dorado")
-            self.connectService?.send(text: "double")
+            self.appDelegate.connectService?.send(text: "double")
 
         }else if (contact.bodyB.node?.name == "double"
         && contact.bodyA.node?.name == "puck" && !contact.bodyB.node!.isHidden){
             contact.bodyB.node!.isHidden = true
             self.doublePoints = true
             self.puck!.texture = SKTexture(imageNamed: "dorado")
-            self.connectService?.send(text: "double")
+            self.appDelegate.connectService?.send(text: "double")
         }else if (contact.bodyA.node?.name == "puck"){
             contact.bodyA.node?.run(self.actionSoundHit)
         }else if (contact.bodyB.node?.name == "puck"){
@@ -563,7 +562,7 @@ extension GameScene : GameControl {
         self.run(self.actionSoundGoal)
         if(self.score >= self.appDelegate.maxScore){
             
-            self.connectService?.send(text: "win")
+            self.appDelegate.connectService?.send(text: "win")
             
             self.scoreboard?.zPosition = 2
             self.labelWins = childNode(withName: "//label_wins") as? SKLabelNode
