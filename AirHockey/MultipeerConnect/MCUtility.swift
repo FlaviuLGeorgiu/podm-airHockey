@@ -192,7 +192,6 @@ extension MultipeerConnectService : MCSessionDelegate {
             break
         case .notConnected:
             if self.appDelegate.gameScene?.name == "ListScene"{
-                
                 self.delegate?.notConnected()
             }else{
                 

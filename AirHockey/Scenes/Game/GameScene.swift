@@ -527,7 +527,6 @@ extension GameScene : GameControl {
         
         self.puck?.removeFromParent()
         self.doublePoints = false
-        self.puck!.texture = SKTexture(imageNamed: "puck")
         self.scoreboard?.zPosition = 2
         self.labelWins = childNode(withName: "//label_wins") as? SKLabelNode
         self.labelWins?.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura*3/4)
@@ -557,7 +556,9 @@ extension GameScene : GameControl {
         }
         self.score += 1
         self.updateScore()
+        
         self.doublePoints = false
+        self.puck?.texture = SKTexture(imageNamed: "puck")
         
         self.run(self.actionSoundGoal)
         if(self.score >= self.appDelegate.maxScore){
@@ -602,9 +603,8 @@ extension GameScene : GameControl {
             if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:Any]
             {
                 if self.doublePoints{
-                     self.puck!.texture = SKTexture(imageNamed: "dorado")
+                    self.puck!.texture = SKTexture(imageNamed: "dorado")
                 }
-                
                 self.puck?.position.x = self.frame.maxX - 1
                 self.puck?.position.y = self.convertHeight(h: jsonArray["y"] as! CGFloat * -1)
                 self.puck?.physicsBody?.velocity = CGVector(dx: jsonArray["dx"] as! CGFloat * -1, dy: jsonArray["dy"] as! CGFloat * -1)
