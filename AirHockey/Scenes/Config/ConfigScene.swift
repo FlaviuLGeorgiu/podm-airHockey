@@ -18,6 +18,7 @@ class ConfigScene: SKScene, ButtonSpriteNodeDelegate{
     private var plusButton : ButtonSpriteNode?
     private var minusButton : ButtonSpriteNode?
     private var playButton : ButtonSpriteNode?
+    private var backButton : ButtonSpriteNode?
     
     let red = #colorLiteral(red: 1, green: 0.2156862766, blue: 0.3725490272, alpha: 1)
     let blue = #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1)
@@ -31,11 +32,18 @@ class ConfigScene: SKScene, ButtonSpriteNodeDelegate{
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     var textInput : UITextField?
+    var powerUpsSwitch : UISwitch?
+    var whoStartsSegment : UISegmentedControl!
+    var whatColorSegment : UISegmentedControl!
     
     override func didMove(to view: SKView) {
+        
+        self.appDelegate.config = self
+        
         self.plusButton = childNode(withName: "//plusButton") as? ButtonSpriteNode
         self.minusButton = childNode(withName: "//minusButton") as? ButtonSpriteNode
         self.playButton = childNode(withName: "//playButton") as? ButtonSpriteNode
+        self.backButton = childNode(withName: "//backButton") as? ButtonSpriteNode
         self.scoreLabel = childNode(withName: "//scoreLabel") as? SKLabelNode
         self.powerUpsLabel = childNode(withName: "//powerUpsLabel") as? SKLabelNode
         self.puckLabel = childNode(withName: "//puckLabel") as? SKLabelNode
@@ -46,6 +54,7 @@ class ConfigScene: SKScene, ButtonSpriteNodeDelegate{
         self.playButton?.delegate = self
         self.plusButton?.delegate = self
         self.minusButton?.delegate = self
+        self.backButton?.delegate = self
         
         // MARK: ODIO ESTO.....
         let width = UIScreen.main.bounds.width
@@ -60,22 +69,22 @@ class ConfigScene: SKScene, ButtonSpriteNodeDelegate{
         self.score?.font = UIFont(name: "University", size: 35)
         self.score?.layer.cornerRadius = 10.0
         self.score?.text = String(self.scoreValue)
-        self.score?.frame.size.width = 100
+        self.score?.frame.size.width = 70
         self.score?.frame.size.height = 80
         self.score?.isUserInteractionEnabled = false
         self.score?.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.minusButton!.position.y))
         self.view!.addSubview(self.score!)
         
-        let powerUpsSwitch = UISwitch(frame:CGRect(x: width/2, y: self.powerUpsLabel!.position.y, width: 0, height: 0))
-        powerUpsSwitch.isOn = self.appDelegate.powerUps
-        powerUpsSwitch.transform = CGAffineTransform(scaleX: 1.7, y: 1.7)
-        powerUpsSwitch.onTintColor = self.darkBlue
-        powerUpsSwitch.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.powerUpsLabel!.position.y) + powerUpsSwitch.frame.size.height)
-        powerUpsSwitch.setOn(self.appDelegate.powerUps, animated: true)
-        powerUpsSwitch.addTarget(self, action: #selector(switchValueDidChange(_:)), for: .valueChanged)
-        self.view!.addSubview(powerUpsSwitch)
+        powerUpsSwitch = UISwitch(frame:CGRect(x: width/2, y: self.powerUpsLabel!.position.y, width: 0, height: 0))
+        self.powerUpsSwitch!.isOn = self.appDelegate.powerUps
+        self.powerUpsSwitch!.transform = CGAffineTransform(scaleX: 1.7, y: 1.7)
+        self.powerUpsSwitch!.onTintColor = self.darkBlue
+        self.powerUpsSwitch!.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.powerUpsLabel!.position.y) + powerUpsSwitch!.frame.size.height)
+        self.powerUpsSwitch!.setOn(self.appDelegate.powerUps, animated: true)
+        self.powerUpsSwitch!.addTarget(self, action: #selector(switchValueDidChange(_:)), for: .valueChanged)
+        self.view!.addSubview(self.powerUpsSwitch!)
         
-        let whoStartsSegment = UISegmentedControl(items : self.items)
+        whoStartsSegment = UISegmentedControl(items : self.items)
         whoStartsSegment.frame.size.width = self.convertWidth(w: self.puckLabel!.frame.size.width)
         whoStartsSegment.frame.size.height = whoStartsSegment.frame.size.height*1.8
         whoStartsSegment.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.puckLabel!.position.y) + whoStartsSegment.frame.size.height)
@@ -88,7 +97,7 @@ class ConfigScene: SKScene, ButtonSpriteNodeDelegate{
         whoStartsSegment.tintColor = self.red
         self.view!.addSubview(whoStartsSegment)
         
-        let whatColorSegment = UISegmentedControl(items : self.items)
+        whatColorSegment = UISegmentedControl(items : self.items)
         whatColorSegment.frame.size.width = self.convertWidth(w: self.puckLabel!.frame.size.width)
         whatColorSegment.frame.size.height = whatColorSegment.frame.size.height*1.8
         whatColorSegment.center = CGPoint(x:width/2, y: self.convertHeight(h: self.frame.height/2 - self.colorsLabel!.position.y) + whatColorSegment.frame.size.height)
@@ -124,12 +133,26 @@ class ConfigScene: SKScene, ButtonSpriteNodeDelegate{
                 }
             case "playButton":
                 for view in self.view!.subviews {
-                    view.removeFromSuperview()
+                    if view == self.score || view == self.powerUpsSwitch || view == self.whoStartsSegment || view == self.whatColorSegment{
+                        view.removeFromSuperview()
+                    }
                 }
                 view?.gestureRecognizers?.removeAll()
                 let reveal = SKTransition.reveal(with: .down,
                 duration: 1)
                 if let scene = SKScene(fileNamed: "ListScene"),
+                   let view = self.view {
+                    scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
+                    view.presentScene(scene, transition: reveal)
+                }
+            case "backButton":
+                for view in self.view!.subviews {
+                    view.removeFromSuperview()
+                }
+                view?.gestureRecognizers?.removeAll()
+                let reveal = SKTransition.reveal(with: .down,
+                duration: 1)
+                if let scene = SKScene(fileNamed: "MenuScene"),
                    let view = self.view {
                     scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
                     view.presentScene(scene, transition: reveal)

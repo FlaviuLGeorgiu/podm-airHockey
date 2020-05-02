@@ -33,7 +33,6 @@
 		C734A02823F5D17000B207F2 /* SKScene+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C734A02723F5D17000B207F2 /* SKScene+Extensions.swift */; };
 		C734A02A23F5DB8E00B207F2 /* ButtonSpriteNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C734A02923F5DB8E00B207F2 /* ButtonSpriteNode.swift */; };
 		C76FDC232434EADF008E9306 /* SwiftySKScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76FDC222434EADF008E9306 /* SwiftySKScrollView.swift */; };
-		C76FDC282434ED1A008E9306 /* ListScene+HorizontalScrolling.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76FDC242434ED1A008E9306 /* ListScene+HorizontalScrolling.swift */; };
 		C76FDC292434ED1A008E9306 /* ListScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76FDC252434ED1A008E9306 /* ListScene.swift */; };
 		C76FDC2A2434ED1A008E9306 /* ListScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = C76FDC262434ED1A008E9306 /* ListScene.sks */; };
 		C76FDC2B2434ED1A008E9306 /* ListScene+VerticalScrolling.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76FDC272434ED1A008E9306 /* ListScene+VerticalScrolling.swift */; };
@@ -72,7 +71,6 @@
 		C734A02723F5D17000B207F2 /* SKScene+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKScene+Extensions.swift"; sourceTree = "<group>"; };
 		C734A02923F5DB8E00B207F2 /* ButtonSpriteNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonSpriteNode.swift; sourceTree = "<group>"; };
 		C76FDC222434EADF008E9306 /* SwiftySKScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftySKScrollView.swift; sourceTree = "<group>"; };
-		C76FDC242434ED1A008E9306 /* ListScene+HorizontalScrolling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ListScene+HorizontalScrolling.swift"; sourceTree = "<group>"; };
 		C76FDC252434ED1A008E9306 /* ListScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListScene.swift; sourceTree = "<group>"; };
 		C76FDC262434ED1A008E9306 /* ListScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = ListScene.sks; sourceTree = "<group>"; };
 		C76FDC272434ED1A008E9306 /* ListScene+VerticalScrolling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ListScene+VerticalScrolling.swift"; sourceTree = "<group>"; };
@@ -192,7 +190,6 @@
 				C76FDC262434ED1A008E9306 /* ListScene.sks */,
 				C76FDC252434ED1A008E9306 /* ListScene.swift */,
 				C76FDC272434ED1A008E9306 /* ListScene+VerticalScrolling.swift */,
-				C76FDC242434ED1A008E9306 /* ListScene+HorizontalScrolling.swift */,
 				C7A3A940244610DA009717D0 /* ButtonLabelSpriteNode.swift */,
 			);
 			path = List;
@@ -302,7 +299,6 @@
 				7D54401F243E1BA400B624D5 /* AppAlert.swift in Sources */,
 				C76FDC232434EADF008E9306 /* SwiftySKScrollView.swift in Sources */,
 				C76FDC292434ED1A008E9306 /* ListScene.swift in Sources */,
-				C76FDC282434ED1A008E9306 /* ListScene+HorizontalScrolling.swift in Sources */,
 				C7EF5FC5245B580D00AA49A5 /* ConfigScene.swift in Sources */,
 				C734A02623F5CAF300B207F2 /* MenuScene.swift in Sources */,
 				85CAC68C22F4658F00153368 /* GameViewController.swift in Sources */,

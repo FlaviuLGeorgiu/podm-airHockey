@@ -21,9 +21,11 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
         if(self.textInput?.text != ""){
             appDelegate.myName = self.textInput?.text
             UserDefaults.standard.set(self.textInput?.text, forKey: "myName")
-//            self.textInput?.removeFromSuperview()
+            //self.textInput?.removeFromSuperview()
             for view in self.view!.subviews {
-                view.removeFromSuperview()
+                if view == self.textInput {
+                    view.removeFromSuperview()
+                }
             }
             view?.gestureRecognizers?.removeAll()
             let reveal = SKTransition.flipHorizontal(withDuration: 0.25)
