@@ -135,7 +135,6 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
         if(!self.conectando){
             self.conectando = true
             if let nombre = sender.name {
-                print(nombre)
                 AppAlert(title: "Conectar con", message: nombre, preferredStyle: .alert)
                 .addAction(title: "NO", style: .cancel) { _ in
                     self.conectando = false
@@ -229,24 +228,6 @@ extension ListScene : MultipeerConnectServiceDelegate {
                 }
                
                 
-                if self.appDelegate.myColor == #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1) {
-                     print("Mi color es azul")
-                 }else{
-                     print("Mi color es rojo")
-                 }
-                 
-                 if self.appDelegate.startWithPuck {
-                     print("Empiezo partida")
-                 }else{
-                     print("No empiezo")
-                 }
-                 print("MaxScore: "+String(self.appDelegate.maxScore))
-                if self.appDelegate.powerUps {
-                    print("Hay poderes")
-                }else{
-                    print("No hay poderes")
-                }
-                
                 removeLoadingGif()
                 loadGameScene()
                 
@@ -267,15 +248,11 @@ extension ListScene : MultipeerConnectServiceDelegate {
                 button.removeFromParent()
             }
             self.buttons.removeAll()
-            
-            //print(devices)
+
             self.listaUsuarios = devices.map({$0.displayName})
             self.listaPeersIDs = devices
             
             var auxY = self.myNameIs.position.y;
-            
-            //self.listaUsuarios = ["0", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
-            
             let totalHeight = Double(self.listaUsuarios.count + 2) * 2.0 * self.buttonHeight
             let adjuster = (totalHeight / Double(self.frame.size.height))
             self.scrollViewWidthAdjuster = CGFloat(adjuster)
@@ -297,10 +274,6 @@ extension ListScene : MultipeerConnectServiceDelegate {
     
     
     func connectedDevicesChanged(manager: MultipeerConnectService, connectedDevices: [String]) {
-        print("Conectado")
-//        removeLoadingGif()
-//        loadGameScene()
-        
         let data: [String: Any] = [
             "height" : UIScreen.main.bounds.height,
             "width" : UIScreen.main.bounds.width,
@@ -310,26 +283,6 @@ extension ListScene : MultipeerConnectServiceDelegate {
             "powerups" : self.appDelegate.powerUps
         ]
         let jsonString = stringify(json: data, prettyPrinted: true)
-        
-        print("ENVIO")
-        if self.appDelegate.myColor == #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1) {
-            print("Mi color es azul")
-        }else{
-            print("Mi color es rojo")
-        }
-        
-        if self.appDelegate.startWithPuck {
-            print("Empiezo partida")
-        }else{
-            print("No empiezo")
-        }
-        print("MaxScore: "+String(self.appDelegate.maxScore))
-       if self.appDelegate.powerUps {
-           print("Hay poderes")
-       }else{
-           print("No hay poderes")
-       }
-        
         self.connectService.send(text: jsonString)
     }
     

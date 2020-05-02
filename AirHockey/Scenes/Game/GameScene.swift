@@ -17,10 +17,8 @@ enum PowerUpsSpeed {
 // TODO [D04] Implementa el protocolo `SKPhysicsContactDelegate`
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    var contadorPowerUps = 0
     
-    
-    // MARK: - Session
+    // MARK: - Referencias Session
     var session : MCSession? = nil
     var connectService : MultipeerConnectService?
     var estoyEnCampo = true
@@ -44,6 +42,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: Powerups
     private var powerUpActivated : PowerUpsSpeed = .fast
     private var doublePoints : Bool = false;
+    private var contadorPowerUps = 0
 
     // MARK: Colores de los jugadores
     private var color = #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1)
@@ -84,26 +83,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.anchura = appDelegate.anchura!
         self.minAnchuraUIScreenEnValorFrame = self.frame.minX + self.convertWidth(w: (UIScreen.main.bounds.width - self.anchura))
         
-        print(UIScreen.main.bounds.height)
-        print(appDelegate.altura! as Any)
-        print(self.frame.height)
-        print(UIScreen.main.bounds.width)
-        print(appDelegate.anchura! as Any)
-        print(self.frame.width)
-        
+//       Calculo de la diferencia de altura entre dispositivos distintos
         self.ajuste = self.altura / UIScreen.main.bounds.height
 
-        // TODO [B04] Obten las referencias a los nodos de la escena
-        //self.paddleTop = childNode(withName: "//paddleTop") as? SKSpriteNode
-//        if self.appDelegate.connectService!.isBrowser{
         self.configGame()
-        
         self.createSceneLimits()
         self.updateScore()
-        
-        //self.physicsWorld.gravity = CGVector.zero
+
     }
     
+//    MARK: -Configuracion del juego
     func configGame(){
         
         self.color = self.appDelegate.myColor
@@ -128,8 +117,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         if self.appDelegate.myColor == #colorLiteral(red: 0.3727632761, green: 0.3591359258, blue: 0.8980184197, alpha: 1){
-           
-            //self.puck?.removeFromParent()
             self.paddle?.texture = SKTexture(imageNamed: "paddle_blue")
             self.scoreboard?.fontColor = self.color
         }else{
@@ -140,21 +127,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func createSceneLimits() {
-
-        // TODO [C03] Define los limites del escenario como un cuerpo físico con forma edge loop de las dimensiones de la escena
-        //self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame)
-        
-        // TODO [C11] Define los limites del escenario dejando los huecos de las porterias. Puedes utilizar dos cuerpos que definan cada uno de los laterales del escenario a partir de un path, y combinarlos en un unico cuerpo compuesto.
-        
         // MARK: - PORTERIA
-        // TODO [C12] Dibuja las dos porterias (rectangulos) y la linea de medio campo mediante nodos SKShapeNode
         let porteriaLado = SKShapeNode(rect: CGRect(x: self.minAnchuraUIScreenEnValorFrame - 20, y: -self.convertHeight(h: self.altura/4), width: self.convertWidth(w: self.anchura/4), height: self.convertHeight(h: self.altura/2)))
         porteriaLado.strokeColor = self.color
         porteriaLado.glowWidth = 4.0  * self.ajuste
         self.addChild(porteriaLado)
         
-        // MARK: - COSOS NEGROS
-        //let rectanguloNegroSuperior = CGRect(x: self.minAnchuraUIScreenEnValorFrame, y: self.convertHeight(h:UIScreen.main.bounds.height), width: self.convertWidth(w: self.anchura), height: self.convertHeight(h:UIScreen.main.bounds.height - self.altura))
+        // MARK: - MARGENES
         let rectanguloNegroSuperior = SKShapeNode(rectOf: CGSize(width: self.frame.width*2, height: self.convertHeight(h:UIScreen.main.bounds.height - self.altura)))
         rectanguloNegroSuperior.fillColor = .darkGray
         rectanguloNegroSuperior.strokeColor = .darkGray
@@ -173,7 +152,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             rectanguloNegroLateral.strokeColor = .darkGray
             rectanguloNegroLateral.position = CGPoint(x: -self.convertWidth(w: self.anchura),y: -self.convertHeight(h: UIScreen.main.bounds.height/2))
             self.addChild(rectanguloNegroLateral)
-            //UIColor(red: 0, green: 0, blue: 0, alpha: 1)
         }
         
         
@@ -190,11 +168,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pathTopLeft.addLines(between: [goalTopLeft, topLeft, topMiddle])
         
         let drawableTopLeft = SKShapeNode(path: pathTopLeft)
-        /*if self.connectService?.isBrowser ?? false {
-            drawableTopLeft.strokeColor = UIColor.blue
-        }else{
-            drawableTopLeft.strokeColor = UIColor.red
-        }*/
         drawableTopLeft.strokeColor = self.color
         drawableTopLeft.lineWidth = 10 * self.ajuste
         self.addChild(drawableTopLeft)
@@ -214,11 +187,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pathBottomLeft.addLines(between: [goalBottomLeft, bottomLeft, bottomMiddle])
         
         let drawableBottomLeft = SKShapeNode(path: pathBottomLeft)
-        /*if self.connectService?.isBrowser ?? false {
-            drawableBottomLeft.strokeColor = UIColor.blue
-        }else{
-            drawableBottomLeft.strokeColor = UIColor.red
-        }*/
         drawableBottomLeft.strokeColor = self.color
         drawableBottomLeft.lineWidth = 10 * self.ajuste
         self.addChild(drawableBottomLeft)
@@ -249,13 +217,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(lineaMedio)
         
         // MARK: - Límites físicos
-        // TODO [C13] Define limites fisicos para cada uno de los dos campos de juego, y asocialos a nodos de la escena.
         let rectanguloInferior = CGRect(x: self.minAnchuraUIScreenEnValorFrame, y: -self.convertHeight(h:self.altura/2), width: self.convertWidth(w: self.anchura), height: self.convertHeight(h:self.altura))
         let campoInferiorBody = SKPhysicsBody(edgeLoopFrom: rectanguloInferior)
         porteriaLado.physicsBody = campoInferiorBody
         
         // MARK: - Asignar
-        // TODO [C14] Asigna los cuerpos fisicos de limites de la escena y de cada campo su correspondiente categoria (categoryBitMask). En caso de cuerpos compuestos, solo es necesaria asociarla al cuerpo "padre"
         self.physicsBody?.categoryBitMask = self.limitsCategoryMask
         porteriaLado.physicsBody?.categoryBitMask = self.midfieldCategoryMask
         
@@ -263,11 +229,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // MARK: -Funciones de los powerups
-    
-    func loadTexture(_ node: SKSpriteNode) {
-        
-         self.addChild(node)
-    }
     
     func crearPowerUp() {
 
@@ -312,7 +273,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if self.appDelegate.powerUps {
             if self.contadorPowerUps == 200 {
-                print("Creando powerup")
 
                 self.powerUp?.removeFromParent()
                 self.powerUp = nil
@@ -324,7 +284,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if let puck = self.puck{
-                        // TODO [D01] Comprobamos si alguno de los jugadores ha metido gol (si la posición y del disco es superior a frame.maxY o inferior a frame.minY)
             if ((puck.position.x) < self.minAnchuraUIScreenEnValorFrame){
             //  - Incrementa la puntuacion del jugador correspondiente
 //                self.scoreBottom = self.scoreBottom + 1
@@ -332,14 +291,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //  - Define el punto de regeneracion del disco (en la mitad del campo del jugador contrario)
                 let spawnPos = CGPoint(x:self.frame.midX,
                 y:self.frame.midY)
-                print("GOLAAAAAAAASO")
                 self.doublePoints = false
+                self.puck!.texture = SKTexture(imageNamed: "puck")
                 self.connectService?.send(text: "goal")
           
                 resetPuck(pos: spawnPos)
                 
             }else if ((puck.position.x) > self.frame.maxX) && self.estoyEnCampo {
-                 print("Cambio de mapa")
+               
                 
                 let data: [String: Any] = [
                     "y" : self.convertHeightInverso(h: self.puck!.position.y),
@@ -376,13 +335,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func updateScore() {
-        // TODO [B05] Poner como texto de las etiquetas scoreboardTop y scoreboardBottom los valores scoreTop y scoreBottom respectivamente
-        //self.scoreboardTop?.text = String(scoreTop)
         self.scoreboard?.text = String(score)
     }
     
     func resetPuck(pos : CGPoint) {
-        // TODO [D08]
         self.puck?.physicsBody?.angularVelocity = 0
         self.puck?.physicsBody?.velocity = .zero
         //  - Situa el disco "puck" en pos
@@ -401,22 +357,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let sequence = SKAction.sequence([scaleSmall, dynamicTrueAction])
         self.puck?.run(sequence)
     }
-    // MARK: GOTOTITLE
+    // MARK: -goToTitle
     func goToTitle() {
         
         self.connectService?.session.disconnect()
         self.connectService?.disconnect()
         self.appDelegate.connectService?.disconnect()
         
-        // TODO [D10] Cargamos la escena `MenuScene`, con modo aspectFill, y la presentamos mediante ua transicion de tipo `flipHorizontal` que dure 0.25s.
         let flip = SKTransition.flipHorizontal(withDuration: 0.25)
         
         if let scene = SKScene(fileNamed: "MenuScene"),
            let view = self.view
         {
             //reajusta el tamaño de la pantalla al cambiar de escena
-            //scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
-            scene.scaleMode = .aspectFill
+            scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
             view.presentScene(scene, transition: flip)
         }
     }
@@ -440,9 +394,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func touchDown(withTouch t : UITouch) {
-        // TODO [C05]
-        print("tap")
-        //  - Obten las coordenadas de t en la escena
+                //  - Obten las coordenadas de t en la escena
         let position = t.location(in: self)
         //  - Comprueba si hay algun nodo en dichas coordenadas
         let nodoTocado = self.atPoint(position)
@@ -455,7 +407,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func touchMoved(withTouch t : UITouch) {
-        // TODO [C06]
         //  - Obten las coordenadas de t en la escena
         let position = t.location(in: self)
         //  - Comprueba si hay algun nodo vinculado a t en self.activeTouches
@@ -468,11 +419,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func touchUp(withTouch t : UITouch) {
-        // TODO [C07]
-        //  - Elimina la entrada t del diccionario self.activeTouches.
-        //activeTouches[t] = nil
         
-        // TODO [C10] Comprueba si hay algun nodo vinculado a t, y en tal caso eliminalo de la escena
         if((activeTouches[t]) != nil){
             activeTouches[t]?.removeFromParent()
             activeTouches[t] = nil
@@ -480,7 +427,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func createDragNode(linkedTo paddle: SKNode) -> SKNode {
-        // TODO [C08]
         //  - Crea un nodo de tipo forma circular con radio `20`, situado en la posición del nodo paddle, añadelo a la escena.
         let resorte = SKShapeNode(circleOfRadius: 20)
         resorte.position = paddle.position
@@ -501,42 +447,42 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     // MARK: - Metodos de SKPhysicsContactDelegate
-    
-    // TODO [D06] Define el método didBegin(:). En caso de que alguno de los cuerpos que intervienen en el contacto sea el disco (' puck'), reproduce el audio `actionSoundHit`
     func didBegin(_ contact: SKPhysicsContact) {
 
-    
+//        Comprobamos todas las posibilidades de colisiones que hay
         if (contact.bodyA.node?.name == "fast"
             && contact.bodyB.node?.name == "puck" && !contact.bodyA.node!.isHidden){
-            print("Tocado top")
+            
             contact.bodyA.node!.isHidden = true
             self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! * 3, dy: (self.puck!.physicsBody?.velocity.dy)! * 3)
 
         }else if (contact.bodyB.node?.name == "fast"
         && contact.bodyA.node?.name == "puck" && !contact.bodyB.node!.isHidden){
-            print("Tocado top")
+            
             contact.bodyB.node!.isHidden = true
             self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! * 3, dy: (self.puck!.physicsBody?.velocity.dy)! * 3)
         }else if (contact.bodyA.node?.name == "ice"
             && contact.bodyB.node?.name == "puck" && !contact.bodyA.node!.isHidden){
-            print("Tocado bottom")
+            
             contact.bodyA.node!.isHidden = true
             self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! / 3, dy: (self.puck!.physicsBody?.velocity.dy)! / 3)
         }else if (contact.bodyB.node?.name == "ice"
         && contact.bodyA.node?.name == "puck" && !contact.bodyB.node!.isHidden){
-            print("Tocado bottom")
+            
             contact.bodyB.node!.isHidden = true
             self.puck!.physicsBody?.velocity = CGVector(dx: (self.puck!.physicsBody?.velocity.dx)! / 3, dy: (self.puck!.physicsBody?.velocity.dy)! / 3)
         }else if (contact.bodyA.node?.name == "double"
             && contact.bodyB.node?.name == "puck" && !contact.bodyA.node!.isHidden){
             contact.bodyA.node!.isHidden = true
             self.doublePoints = true
+            self.puck!.texture = SKTexture(imageNamed: "dorado")
             self.connectService?.send(text: "double")
 
         }else if (contact.bodyB.node?.name == "double"
         && contact.bodyA.node?.name == "puck" && !contact.bodyB.node!.isHidden){
             contact.bodyB.node!.isHidden = true
             self.doublePoints = true
+            self.puck!.texture = SKTexture(imageNamed: "dorado")
             self.connectService?.send(text: "double")
         }else if (contact.bodyA.node?.name == "puck"){
             contact.bodyA.node?.run(self.actionSoundHit)
@@ -581,7 +527,7 @@ extension GameScene : GameControl {
         
         self.puck?.removeFromParent()
         self.doublePoints = false
-    
+        self.puck!.texture = SKTexture(imageNamed: "puck")
         self.scoreboard?.zPosition = 2
         self.labelWins = childNode(withName: "//label_wins") as? SKLabelNode
         self.labelWins?.position.x = minAnchuraUIScreenEnValorFrame + self.convertWidth(w: self.anchura*3/4)
@@ -641,8 +587,6 @@ extension GameScene : GameControl {
             
         }else{
         
-            // TODO [D07]
-            //  - Crear una acción que repita 3 veces: escalar a 1.2 durante 0.1s, escalar a 1.0 durante 0.01s
             let escalaGrande = SKAction.scale(to: 1.2, duration: 0.1)
             let escalaPequeno = SKAction.scale(to: 1, duration: 0.01)
             let sequence = SKAction.sequence([escalaGrande, escalaPequeno])
@@ -653,11 +597,14 @@ extension GameScene : GameControl {
     }
     
     func puckService(didReceive text: String) {
-//        print("Hola desde puckService")
         let data = text.data(using: .utf8)!
         do {
             if let jsonArray = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:Any]
             {
+                if self.doublePoints{
+                     self.puck!.texture = SKTexture(imageNamed: "dorado")
+                }
+                
                 self.puck?.position.x = self.frame.maxX - 1
                 self.puck?.position.y = self.convertHeight(h: jsonArray["y"] as! CGFloat * -1)
                 self.puck?.physicsBody?.velocity = CGVector(dx: jsonArray["dx"] as! CGFloat * -1, dy: jsonArray["dy"] as! CGFloat * -1)

@@ -21,9 +21,12 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
         if(self.textInput?.text != ""){
             appDelegate.myName = self.textInput?.text
             UserDefaults.standard.set(self.textInput?.text, forKey: "myName")
-            textInput?.removeFromSuperview()
+//            self.textInput?.removeFromSuperview()
+            for view in self.view!.subviews {
+                view.removeFromSuperview()
+            }
             view?.gestureRecognizers?.removeAll()
-            let reveal = SKTransition.flipHorizontal(withDuration: 0.2)
+            let reveal = SKTransition.flipHorizontal(withDuration: 0.25)
             if let scene = SKScene(fileNamed: "ConfigScene"),
                let view = self.view {
                 scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
@@ -38,7 +41,7 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
     }
     
     override func didMove(to view: SKView) {
-        print(self.frame)
+        
         self.playButton = childNode(withName: "//play_button") as? ButtonSpriteNode
         self.airHockey = childNode(withName: "//airHockey") as? SKLabelNode
         self.forTwo = childNode(withName: "//forTwo") as? SKLabelNode
@@ -47,7 +50,7 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
         
         self.hideKeyboard()
         
-        // MARK: ODIO ESTO.....
+       
         let width = UIScreen.main.bounds.width//self.rootView.frame.size.width
         let height = UIScreen.main.bounds.height
         

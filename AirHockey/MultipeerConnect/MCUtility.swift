@@ -48,11 +48,8 @@ class MultipeerConnectService : NSObject {
     
     
     public var peerList = [MCPeerID]()
-    
     var isBrowser : Bool = false
-    
     var delegate : MultipeerConnectServiceDelegate?
-    
     var gameDelegate : GameControl?
     
     lazy var session : MCSession = {
@@ -194,10 +191,10 @@ extension MultipeerConnectService : MCSessionDelegate {
             break
         case .notConnected:
             if self.appDelegate.gameScene?.name == "ListScene"{
-                print("Quitando GIF")
+                
                 self.delegate?.notConnected()
             }else{
-                print("Cerrando partida")
+                
                 self.gameDelegate?.disconnect()
             }
             break
@@ -208,6 +205,7 @@ extension MultipeerConnectService : MCSessionDelegate {
        
     }
     
+//    Filtramos el string que nos llega en funcion de si es una cadena o un JSON
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
 //        NSLog("%@", "didReceiveData: \(data)")
         let str = String(data: data, encoding: .utf8)!
@@ -221,6 +219,7 @@ extension MultipeerConnectService : MCSessionDelegate {
             
             let data = str.data(using: .utf8)!
             do {
+//                Tenemos dos tipos de JSON que hay que diferenciar
                 if let json = try JSONSerialization.jsonObject(with: data, options : .allowFragments) as? [String:Any]
                 {
                     if let _ = json["dx"]{
