@@ -108,6 +108,7 @@ class MultipeerConnectService : NSObject {
         serviceBrowser.invitePeer(conectingPeer, to: self.session, withContext: nil, timeout: 10)
         
     }
+    
 
 }
 

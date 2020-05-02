@@ -134,7 +134,7 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
     override func willMove(from view: SKView) {
         self.removeAllChildren()
         for view in self.view!.subviews {
-            if view != (self.appDelegate.config as! ConfigScene).score || view != (self.appDelegate.config as! ConfigScene).powerUpsSwitch || view != (self.appDelegate.config as! ConfigScene).whoStartsSegment || view != (self.appDelegate.config as! ConfigScene).whatColorSegment{
+            if view != (self.appDelegate.config as! ConfigScene).score && view != (self.appDelegate.config as! ConfigScene).powerUpsSwitch && view != (self.appDelegate.config as! ConfigScene).whoStartsSegment && view != (self.appDelegate.config as! ConfigScene).whatColorSegment{
                 view.removeFromSuperview()
             }
         }
@@ -144,6 +144,7 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
         if(!self.conectando){
             if let nombre = sender.name {
                 if nombre == "settings" {
+                    self.connectService.disconnect()
                     view?.gestureRecognizers?.removeAll()
                     let reveal = SKTransition.reveal(with: .down,
                     duration: 1)
@@ -269,8 +270,16 @@ extension ListScene : MultipeerConnectServiceDelegate {
             }
             self.buttons.removeAll()
 
-            self.listaUsuarios = devices.map({$0.displayName})
-            self.listaPeersIDs = devices
+            self.listaPeersIDs.removeAll()
+            self.listaUsuarios.removeAll()
+            for device in devices {
+                if device.displayName != self.appDelegate.myName{
+                    self.listaUsuarios.append(device.displayName)
+                    self.listaPeersIDs.append(device)
+                }
+            }
+            
+            
             
             var auxY = self.myNameIs.position.y;
             let totalHeight = Double(self.listaUsuarios.count + 3) * 2.0 * self.buttonHeight

@@ -24,6 +24,8 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
             //self.textInput?.removeFromSuperview()
             for view in self.view!.subviews {
                 if view == self.textInput {
+                    self.textInput?.isHidden = true
+                    self.textInput?.isUserInteractionEnabled = false
                     view.removeFromSuperview()
                 }
             }
@@ -86,6 +88,16 @@ class MenuScene: SKScene, ButtonSpriteNodeDelegate{
         self.view!.addSubview(textInput!)
         
         self.playButton?.position = CGPoint(x: 0, y: -self.frame.height/10 * 1.2 )
+    }
+    
+    override func willMove(from view: SKView) {
+        for view in self.view!.subviews {
+           if view == self.textInput {
+            self.textInput?.isHidden = true
+            self.textInput?.isUserInteractionEnabled = false
+               view.removeFromSuperview()
+           }
+       }
     }
     
     /*override public func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

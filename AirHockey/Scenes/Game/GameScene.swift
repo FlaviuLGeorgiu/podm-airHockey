@@ -366,7 +366,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let flip = SKTransition.flipHorizontal(withDuration: 0.25)
         
-        if let scene = SKScene(fileNamed: "MenuScene"),
+        if let scene = SKScene(fileNamed: "ListScene"),
            let view = self.view
         {
             //reajusta el tamaño de la pantalla al cambiar de escena
