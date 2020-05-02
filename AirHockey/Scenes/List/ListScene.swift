@@ -73,9 +73,16 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
         appDelegate.gameScene = self
         appDelegate.connectService = self.connectService
         
+        let buttonBackGround = ButtonLabelSpriteNode("Back to Settings")
+        buttonBackGround.name = "settings"
+        buttonBackGround.size.width = self.frame.width / 1.5
+        buttonBackGround.position = CGPoint(x: 0, y: (self.frame.size.height / 2) - CGFloat(self.buttonHeight) * 2.0)
+        buttonBackGround.delegate = self
+        self.moveableNode.addChild(buttonBackGround)
+        
         myNameIs.text = "My Name is: " + self.appDelegate.myName!
         myNameIs.fontSize = 35
-        myNameIs.position = CGPoint(x: 0, y: (self.frame.size.height / 2) - CGFloat(self.buttonHeight) * 2.0)
+        myNameIs.position = CGPoint(x: 0, y: (self.frame.size.height / 2) - CGFloat(self.buttonHeight) * 4.0)
         self.moveableNode.addChild(myNameIs)
     }
     
@@ -127,24 +134,37 @@ class ListScene: SKScene, ButtonLabelSpriteNodeDelegate {
     override func willMove(from view: SKView) {
         self.removeAllChildren()
         for view in self.view!.subviews {
-            view.removeFromSuperview()
+            if view != (self.appDelegate.config as! ConfigScene).score || view != (self.appDelegate.config as! ConfigScene).powerUpsSwitch || view != (self.appDelegate.config as! ConfigScene).whoStartsSegment || view != (self.appDelegate.config as! ConfigScene).whatColorSegment{
+                view.removeFromSuperview()
+            }
         }
     }
     
     func didPushButton(_ sender: ButtonLabelSpriteNode) {
         if(!self.conectando){
-            self.conectando = true
             if let nombre = sender.name {
-                AppAlert(title: "Conectar con", message: nombre, preferredStyle: .alert)
-                .addAction(title: "NO", style: .cancel) { _ in
-                    self.conectando = false
+                if nombre == "settings" {
+                    view?.gestureRecognizers?.removeAll()
+                    let reveal = SKTransition.reveal(with: .down,
+                    duration: 1)
+                    if let scene = SKScene(fileNamed: "ConfigScene"),
+                       let view = self.view {
+                        scene.resizeWithFixedHeightTo(viewportSize: view.frame.size)
+                        view.presentScene(scene, transition: reveal)
+                    }
+                } else {
+                    self.conectando = true
+                    AppAlert(title: "Conectar con", message: nombre, preferredStyle: .alert)
+                    .addAction(title: "NO", style: .cancel) { _ in
+                        self.conectando = false
+                    }
+                    .addAction(title: "SI", style: .default) { _ in
+                        self.addLoadingGif()
+                        self.connectService.invite(displayName: nombre)
+                    }
+                    .build()
+                    .showAlert(animated: true)
                 }
-                .addAction(title: "SI", style: .default) { _ in
-                    self.addLoadingGif()
-                    self.connectService.invite(displayName: nombre)
-                }
-                .build()
-                .showAlert(animated: true)
             }
         }
     }
@@ -253,7 +273,7 @@ extension ListScene : MultipeerConnectServiceDelegate {
             self.listaPeersIDs = devices
             
             var auxY = self.myNameIs.position.y;
-            let totalHeight = Double(self.listaUsuarios.count + 2) * 2.0 * self.buttonHeight
+            let totalHeight = Double(self.listaUsuarios.count + 3) * 2.0 * self.buttonHeight
             let adjuster = (totalHeight / Double(self.frame.size.height))
             self.scrollViewWidthAdjuster = CGFloat(adjuster)
             self.prepareVerticalScrolling()
