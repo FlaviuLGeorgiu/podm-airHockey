@@ -234,8 +234,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.powerUp = SKSpriteNode()
                 
         self.powerUp?.size = CGSize(width: (self.paddle?.size.width)!, height: (self.paddle?.size.height)!)
-        
-        self.powerUp!.position.x = CGFloat.random(in: self.anchura/3..<self.anchura/2)
+        if UIDevice.current.userInterfaceIdiom == .pad{
+            self.powerUp!.position.x = CGFloat.random(in: self.anchura/2..<(3*self.anchura/4))
+        }else{
+            self.powerUp!.position.x = CGFloat.random(in: self.anchura/3..<self.anchura/2)
+        }
         self.powerUp!.position.y = CGFloat.random(in: (-self.altura/2)-50..<(self.altura/2)+50)
     
         
